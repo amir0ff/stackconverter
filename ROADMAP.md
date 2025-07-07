@@ -19,10 +19,13 @@
 - ✅ Fallback logic: Generic conversion for unsupported stack combinations
 
 ## Phase 4: UI/UX Enhancements (In Progress)
-- [x] Progress indicators: Show spinner and skeleton during upload and conversion
-- [ ] Error handling: Display clear, styled error messages for upload and conversion failures (in progress)
-- [ ] Download button for single files: Allow users to download converted code as a file (in progress)
-- [x] Improved UI: Multi-framework support reflected in UI text and bubble message
+- ✅ Progress indicators: Show spinner and skeleton during upload and conversion
+- ✅ Error handling: Display clear, styled error messages for upload and conversion failures
+- ✅ Download button for single files: Allow users to download converted code as a file
+- ✅ Improved UI: Multi-framework support reflected in UI text and bubble message
+- ✅ Improved stack switching: When switching source stack to match target after conversion, source code is set to last converted result
+- ✅ Same-stack conversion UX: Converted code now matches source code exactly for same-stack conversions
+- ✅ Instant demo mapping fixes: Escaped Angular template literals to prevent TSX parse errors
 
 **(Diff viewer and history features removed from this phase as decided)**
 

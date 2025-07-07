@@ -97,10 +97,11 @@ function buildPrompt(sourceCode, sourceStack, targetStack) {
 
   return `${instruction}
 
+Output only the converted code, with no explanations, comments, or Markdown formatting (no triple backticks).
+
 Source code:
 ${sourceCode}
-
-Converted code:`;
+`;
 }
 
 // POST /convert endpoint
@@ -112,7 +113,7 @@ app.post('/convert', async (req, res) => {
 
   try {
     const prompt = buildPrompt(sourceCode, sourceStack, targetStack);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const convertedCode = response.text();

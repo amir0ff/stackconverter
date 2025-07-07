@@ -47,6 +47,7 @@ export default Counter;`);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [uploadedServerFilename, setUploadedServerFilename] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activeTargetStack, setActiveTargetStack] = useState(targetStack);
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -130,6 +131,13 @@ export default Counter;`);
     setIsConverting(true);
     setConvertedCode('');
     setError(null);
+    if (sourceStack === targetStack) {
+      // For same-stack conversion, just copy the source code
+      setConvertedCode(sourceCode);
+      setIsConverting(false);
+      setActiveTargetStack(targetStack);
+      return;
+    }
     if (uploadedFile && uploadedServerFilename) {
       // Batch convert: download zip
       try {
@@ -158,6 +166,7 @@ export default Counter;`);
         setError('Batch conversion failed');
       }
       setIsConverting(false);
+      setActiveTargetStack(targetStack);
       return;
     }
     // Single file conversion (existing logic)
@@ -177,6 +186,7 @@ export default Counter;`);
       setError('Error connecting to backend.');
     }
     setIsConverting(false);
+    setActiveTargetStack(targetStack);
   };
 
   const copyToClipboard = async (text: string): Promise<void> => {
@@ -227,6 +237,226 @@ export default Counter;`);
     preact: 'jsx',
   };
 
+  // Example code for each stack
+  const exampleCode: Record<string, string> = {
+    react: `import React, { useState } from 'react';
+
+const Counter = ({ initialValue = 0 }) => {
+  const [count, setCount] = useState(initialValue);
+  const increment = () => setCount(count + 1);
+  const decrement = () => setCount(count - 1);
+  return (
+    <div className="counter">
+      <h2>Counter: {count}</h2>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+    </div>
+  );
+};
+
+export default Counter;`,
+    vue: `<template>
+  <div class="counter">
+    <h2>Counter: {{ count }}</h2>
+    <button @click="increment">+</button>
+    <button @click="decrement">-</button>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import { defineProps } from 'vue';
+
+const props = defineProps({
+  initialValue: {
+    type: Number,
+    default: 0
+  }
+});
+
+const count = ref(props.initialValue);
+const increment = () => count.value++;
+const decrement = () => count.value--;
+</script>`,
+    angular: `import { Component, Input } from '@angular/core';
+
+@Component({
+  selector: 'app-counter',
+  template: '<div class="counter">\n    <h2>Counter: {{ count }}</h2>\n    <button (click)="increment()">+</button>\n    <button (click)="decrement()">-</button>\n  </div>'
+})
+export class CounterComponent {
+  @Input() initialValue: number = 0;
+  count: number;
+
+  constructor() {
+    this.count = this.initialValue;
+  }
+
+  ngOnInit() {
+    this.count = this.initialValue;
+  }
+
+  increment() { this.count++; }
+  decrement() { this.count--; }
+}
+`,
+    svelte: `<script>
+  export let initialValue = 0;
+  let count = initialValue;
+  const increment = () => count++;
+  const decrement = () => count--;
+</script>
+
+<div class="counter">
+  <h2>Counter: {count}</h2>
+  <button on:click={increment}>+</button>
+  <button on:click={decrement}>-</button>
+</div>`,
+    solid: `import { createSignal } from 'solid-js';
+
+const Counter = (props) => {
+  const [count, setCount] = createSignal(props.initialValue || 0);
+  const increment = () => setCount(count() + 1);
+  const decrement = () => setCount(count() - 1);
+  return (
+    <div class="counter">
+      <h2>Counter: {count()}</h2>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+    </div>
+  );
+};
+
+export default Counter;`,
+    preact: `import { h } from 'preact';
+import { useState } from 'preact/hooks';
+
+const Counter = ({ initialValue = 0 }) => {
+  const [count, setCount] = useState(initialValue);
+  const increment = () => setCount(count + 1);
+  const decrement = () => setCount(count - 1);
+  return (
+    <div class="counter">
+      <h2>Counter: {count}</h2>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+    </div>
+  );
+};
+
+export default Counter;`
+  };
+
+  // When changing sourceStack, update example code if no file is uploaded:
+  const handleSourceStackChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newSourceStack = e.target.value;
+    setSourceStack(newSourceStack);
+    if (!uploadedFile) {
+      // If switching to the stack that matches the last conversion target and we have a converted result, use it
+      if (newSourceStack === targetStack && convertedCode) {
+        setSourceCode(convertedCode);
+      } else {
+        setSourceCode(exampleCode[newSourceStack] || '');
+      }
+    }
+  };
+
+  const convertedExamples: Record<string, Record<string, string>> = {
+    react: {
+      vue: `<template>
+  <div class="counter">
+    <h2>Counter: {{ count }}</h2>
+    <button @click="increment">+</button>
+    <button @click="decrement">-</button>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import { defineProps } from 'vue';
+
+const props = defineProps({
+  initialValue: {
+    type: Number,
+    default: 0
+  }
+});
+
+const count = ref(props.initialValue);
+const increment = () => count.value++;
+const decrement = () => count.value--;
+</script>`,
+      angular: `import { Component, Input } from '@angular/core';
+
+@Component({
+  selector: 'app-counter',
+  template: '<div class="counter">\n    <h2>Counter: {{ count }}</h2>\n    <button (click)="increment()">+</button>\n    <button (click)="decrement()">-</button>\n  </div>'
+})
+export class CounterComponent {
+  @Input() initialValue: number = 0;
+  count: number;
+
+  constructor() {
+    this.count = this.initialValue;
+  }
+
+  ngOnInit() {
+    this.count = this.initialValue;
+  }
+
+  increment() { this.count++; }
+  decrement() { this.count--; }
+}
+`,
+      svelte: `<script>
+  export let initialValue = 0;
+  let count = initialValue;
+  const increment = () => count++;
+  const decrement = () => count--;
+</script>
+
+<div class="counter">
+  <h2>Counter: {count}</h2>
+  <button on:click={increment}>+</button>
+  <button on:click={decrement}>-</button>
+</div>`,
+      solid: `import { createSignal } from 'solid-js';
+
+const Counter = (props) => {
+  const [count, setCount] = createSignal(props.initialValue || 0);
+  const increment = () => setCount(count() + 1);
+  const decrement = () => setCount(count() - 1);
+  return (
+    <div class="counter">
+      <h2>Counter: {count()}</h2>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+    </div>
+  );
+};
+
+export default Counter;`,
+      preact: `import { h } from 'preact';
+import { useState } from 'preact/hooks';
+
+const Counter = ({ initialValue = 0 }) => {
+  const [count, setCount] = useState(initialValue);
+  const increment = () => setCount(count + 1);
+  const decrement = () => setCount(count - 1);
+  return (
+    <div class="counter">
+      <h2>Counter: {count}</h2>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+    </div>
+  );
+};
+
+export default Counter;`
+    },
+    // ...repeat for other source stacks
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
       <div className="max-w-7xl mx-auto">
@@ -249,7 +479,8 @@ export default Counter;`);
           <div className="relative">
             <select 
               value={sourceStack} 
-              onChange={(e) => setSourceStack(e.target.value)}
+              onChange={handleSourceStackChange}
+              disabled={isConverting}
               className="appearance-none bg-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-xl px-6 py-3 text-white text-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 pl-12"
             >
               {stackOptions.map(option => (
@@ -272,6 +503,7 @@ export default Counter;`);
             <select 
               value={targetStack} 
               onChange={(e) => setTargetStack(e.target.value)}
+              disabled={isConverting}
               className="appearance-none bg-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-xl px-6 py-3 text-white text-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 pl-12"
             >
               {stackOptions.map(option => (
@@ -291,7 +523,7 @@ export default Counter;`);
         <div className="flex justify-center mb-8">
           <button 
             onClick={convertCode}
-            disabled={isConverting}
+            disabled={isConverting || sourceStack === targetStack}
             className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-200 transform hover:scale-105 disabled:scale-100 shadow-lg flex items-center space-x-2"
           >
             {isConverting ? (
@@ -393,8 +625,8 @@ export default Counter;`);
             <div className="bg-gray-700/50 px-6 py-4 border-b border-gray-600 flex items-center justify-between">
               <h3 className="text-white font-semibold text-lg flex items-center gap-2">
                 Converted Code 
-                <span className="text-gray-300">{stackOptions.find(s => s.value === targetStack)?.icon}</span>
-                <span>{stackOptions.find(s => s.value === targetStack)?.label}</span>
+                <span className="text-gray-300">{stackOptions.find(s => s.value === activeTargetStack)?.icon}</span>
+                <span>{stackOptions.find(s => s.value === activeTargetStack)?.label}</span>
               </h3>
               <div className="flex items-center gap-2">
                 {convertedCode && !isConverting && (
@@ -413,7 +645,7 @@ export default Counter;`);
                       const url = window.URL.createObjectURL(blob);
                       const a = document.createElement('a');
                       a.href = url;
-                      a.download = `Converted.${stackToLanguage[targetStack] || 'js'}`;
+                      a.download = `Converted.${stackToLanguage[activeTargetStack] || 'js'}`;
                       document.body.appendChild(a);
                       a.click();
                       a.remove();
@@ -441,7 +673,7 @@ export default Counter;`);
               ) : (
                 <>
                   <SyntaxHighlighter
-                    language={stackToLanguage[targetStack] || 'javascript'}
+                    language={stackToLanguage[activeTargetStack] || 'javascript'}
                     style={tomorrow}
                     customStyle={{ minHeight: '20rem', fontSize: 14, borderRadius: '0.75rem', background: 'transparent', padding: 24 }}
                     showLineNumbers
