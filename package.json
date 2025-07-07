@@ -1,0 +1,23 @@
+{
+  "name": "stack-converter-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered codebase converter - monorepo",
+  "scripts": {
+    "dev": "pnpm --parallel --recursive run dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:backend": "pnpm --filter backend dev",
+    "build": "pnpm --recursive run build",
+    "build:frontend": "pnpm --filter frontend build",
+    "install:all": "pnpm install",
+    "clean": "pnpm --recursive run clean",
+    "lint": "pnpm --recursive run lint"
+  },
+  "keywords": ["monorepo", "ai", "code-converter", "stack-converter"],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+} 
