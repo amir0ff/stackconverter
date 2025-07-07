@@ -7,7 +7,12 @@ import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { CodePanelProps } from '../types';
 import { stackOptions, stackToLanguage } from '../constants';
 
-const CodePanel: React.FC<CodePanelProps> = ({
+interface CodePanelPropsWithTooltips extends CodePanelProps {
+  uploadTooltipProps?: React.HTMLAttributes<HTMLButtonElement>;
+  resetTooltipProps?: React.HTMLAttributes<HTMLButtonElement>;
+}
+
+const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   title,
   stack,
   code,
@@ -26,6 +31,8 @@ const CodePanel: React.FC<CodePanelProps> = ({
   showEmptyState = false,
   emptyStateMessage = 'Run conversion to see results',
   emptyStateIcon = <Code className="h-12 w-12 mx-auto mb-2 opacity-50" />,
+  uploadTooltipProps = {},
+  resetTooltipProps = {},
 }) => {
   const selectedStack = stackOptions.find(s => s.value === stack);
 
@@ -72,8 +79,8 @@ const CodePanel: React.FC<CodePanelProps> = ({
               <button
                 onClick={onFileUpload}
                 className="text-gray-400 hover:text-white transition-colors"
-                title="Upload zip file"
                 disabled={isUploading}
+                {...uploadTooltipProps}
               >
                 {isUploading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -87,7 +94,7 @@ const CodePanel: React.FC<CodePanelProps> = ({
             <button 
               onClick={onReset}
               className="text-gray-400 hover:text-white transition-colors"
-              title="Reset to example"
+              {...resetTooltipProps}
             >
               <RefreshCw className="h-4 w-4" />
             </button>

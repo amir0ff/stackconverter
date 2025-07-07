@@ -3,7 +3,7 @@ import { FileUploadState } from '../types';
 
 export const useFileUpload = (
   fileUploadState: FileUploadState,
-  setFileUploadState: (state: FileUploadState) => void,
+  setFileUploadState: (state: FileUploadState | ((prev: FileUploadState) => FileUploadState)) => void,
   setError: (error: string | null) => void
 ) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -18,12 +18,12 @@ export const useFileUpload = (
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      setFileUploadState({
-        ...fileUploadState,
+      setFileUploadState(prev => ({
+        ...prev,
         uploadedFile: file,
         isUploading: true,
         uploadMessage: null,
-      });
+      }));
       setError(null);
       
       try {
@@ -35,29 +35,29 @@ export const useFileUpload = (
         });
         const data = await response.json();
         if (response.ok) {
-          setFileUploadState({
-            ...fileUploadState,
+          setFileUploadState(prev => ({
+            ...prev,
             uploadMessage: 'File uploaded successfully!',
             uploadedServerFilename: data.filename,
             isUploading: false,
-          });
+          }));
         } else {
           setError(data.error || 'Upload failed.');
-          setFileUploadState({
-            ...fileUploadState,
+          setFileUploadState(prev => ({
+            ...prev,
             uploadedFile: null,
             uploadedServerFilename: null,
             isUploading: false,
-          });
+          }));
         }
       } catch (err) {
         setError('Upload failed.');
-        setFileUploadState({
-          ...fileUploadState,
+        setFileUploadState(prev => ({
+          ...prev,
           uploadedFile: null,
           uploadedServerFilename: null,
           isUploading: false,
-        });
+        }));
       }
     }
   };

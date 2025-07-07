@@ -8,6 +8,7 @@ import ConvertButton from './ui/ConvertButton';
 import ErrorBanner from './ui/ErrorBanner';
 import CodePanel from './ui/CodePanel';
 import FeaturesSection from './ui/FeaturesSection';
+import { Tooltip } from 'react-tooltip';
 
 const StackConverter: React.FC = () => {
   const {
@@ -48,61 +49,69 @@ const StackConverter: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
-      <div className="max-w-7xl mx-auto">
-        <Header />
-        
-        <StackSelection
-          sourceStack={conversionState.sourceStack}
-          targetStack={conversionState.targetStack}
-          onSourceStackChange={handleSourceStackChange}
-          onTargetStackChange={handleTargetStackChange}
-          disabled={conversionState.isConverting}
-          stackOptions={stackOptions}
-        />
-
-        <ConvertButton
-          onClick={convertCode}
-          disabled={conversionState.isConverting || conversionState.sourceStack === conversionState.targetStack}
-          isConverting={conversionState.isConverting}
-        />
-
-        <ErrorBanner
-          error={conversionState.error}
-          onDismiss={() => setError(null)}
-        />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
-          <CodePanel
-            title="Source Code"
-            stack={conversionState.sourceStack}
-            code={conversionState.sourceCode}
-            language={stackToLanguage[conversionState.sourceStack] || 'javascript'}
-            onReset={resetCode}
-            onFileUpload={handleFileIconClick}
-            onRemoveFile={handleRemoveFile}
-            uploadedFile={fileUploadState.uploadedFile}
-            uploadMessage={fileUploadState.uploadMessage}
-            isUploading={fileUploadState.isUploading}
-            fileInputRef={fileInputRef}
-            onFileChange={handleFileChange}
+    <>
+      <Tooltip id="upload-tooltip" place="top" effect="solid" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
+      <Tooltip id="reset-tooltip" place="top" effect="solid" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
+        <div className="max-w-7xl mx-auto">
+          <Header />
+          
+          <StackSelection
+            sourceStack={conversionState.sourceStack}
+            targetStack={conversionState.targetStack}
+            onSourceStackChange={handleSourceStackChange}
+            onTargetStackChange={handleTargetStackChange}
+            disabled={conversionState.isConverting}
+            stackOptions={stackOptions}
           />
 
-          <CodePanel
-            title="Converted Code"
-            stack={conversionState.activeTargetStack}
-            code={conversionState.convertedCode}
-            language={stackToLanguage[conversionState.activeTargetStack] || 'javascript'}
+          <ConvertButton
+            onClick={convertCode}
+            disabled={conversionState.isConverting || conversionState.sourceStack === conversionState.targetStack}
             isConverting={conversionState.isConverting}
-            onCopy={() => {}} // Handled internally in CodePanel
-            onDownload={() => {}} // Handled internally in CodePanel
-            showEmptyState={true}
           />
-        </div>
 
-        <FeaturesSection features={features} />
+          <ErrorBanner
+            error={conversionState.error}
+            onDismiss={() => setError(null)}
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+            <CodePanel
+              title="Source Code"
+              stack={conversionState.sourceStack}
+              code={conversionState.sourceCode}
+              language={stackToLanguage[conversionState.sourceStack] || 'javascript'}
+              onReset={resetCode}
+              onFileUpload={handleFileIconClick}
+              onRemoveFile={handleRemoveFile}
+              uploadedFile={fileUploadState.uploadedFile}
+              uploadMessage={fileUploadState.uploadMessage}
+              isUploading={fileUploadState.isUploading}
+              fileInputRef={fileInputRef}
+              onFileChange={handleFileChange}
+              uploadTooltipProps={{ 'data-tooltip-id': 'upload-tooltip', 'data-tooltip-content': 'Upload zip file' }}
+              resetTooltipProps={{ 'data-tooltip-id': 'reset-tooltip', 'data-tooltip-content': 'Reset to example' }}
+            />
+
+            <CodePanel
+              title="Converted Code"
+              stack={conversionState.activeTargetStack}
+              code={conversionState.convertedCode}
+              language={stackToLanguage[conversionState.activeTargetStack] || 'javascript'}
+              isConverting={conversionState.isConverting}
+              onCopy={() => {}} // Handled internally in CodePanel
+              onDownload={() => {}} // Handled internally in CodePanel
+              showEmptyState={true}
+              uploadTooltipProps={{ 'data-tooltip-id': 'upload-tooltip', 'data-tooltip-content': 'Upload zip file' }}
+              resetTooltipProps={{ 'data-tooltip-id': 'reset-tooltip', 'data-tooltip-content': 'Reset to example' }}
+            />
+          </div>
+
+          <FeaturesSection features={features} />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
