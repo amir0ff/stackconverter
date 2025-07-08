@@ -15,11 +15,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: 'https://amiroff.me',
-  credentials: true,
-}));
-app.options('*', cors({
-  origin: 'https://amiroff.me',
+  origin: function (origin, callback) {
+    const allowedOrigins = ['https://amiroff.me', 'http://localhost:3000'];
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
