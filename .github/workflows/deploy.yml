@@ -55,6 +55,14 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H 203.161.53.120 >> ~/.ssh/known_hosts
 
+      - name: 📤 Copy backend to VPS
+        run: |
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" backend/ root@203.161.53.120:/home/amiroff/stackconverter-backend/
+
+      - name: 📤 Copy frontend build to VPS
+        run: |
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" frontend/dist/ root@203.161.53.120:/home/amiroff/amiroff.me/stackconverter/
+
       - name: 🚚 Deploy to VPS
         run: |
           cd $GITHUB_WORKSPACE
@@ -77,10 +85,10 @@ jobs:
           sudo chown -R amiroff:amiroff /home/amiroff/amiroff.me/stackconverter
 
           echo "📤 Copying backend files..."
-          cp -r backend/. /home/amiroff/stackconverter-backend/
+          echo "(skipped: files already copied via rsync)"
 
           echo "📤 Copying frontend build..."
-          cp -r frontend/dist/* /home/amiroff/amiroff.me/stackconverter/
+          echo "(skipped: files already copied via rsync)"
 
           echo "🔑 Setting up environment variables..."
           cat > /home/amiroff/stackconverter-backend/.env << 'ENVEOF'
