@@ -126,12 +126,6 @@ jobs:
           RewriteRule . /index.html [L]
           HTACCESSEOF
 
-          echo "🔧 Enabling Apache modules..."
-          sudo a2enmod proxy
-          sudo a2enmod proxy_http
-          sudo a2enmod rewrite
-          sudo systemctl reload apache2
-
           echo "✅ Deployment completed successfully!"
           echo "🌐 Frontend: https://amiroff.me/stackconverter/"
           echo "🔧 Backend: http://localhost:5000"
