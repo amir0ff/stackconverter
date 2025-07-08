@@ -31,6 +31,10 @@ app.use(cors({
   preflightContinue: false,
   optionsSuccessStatus: 200
 }));
+
+// Handle all OPTIONS preflight requests globally
+app.options('*', cors());
+
 app.use(express.json());
 
 // Initialize Gemini client
