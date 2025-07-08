@@ -70,7 +70,7 @@ const StackConverter: React.FC = () => {
             stackOptions={stackOptions}
           />
 
-          {import.meta.env.MODE === 'production' && (
+          {import.meta.env.MODE === 'production' && !captchaToken && (
             <div className="flex justify-center my-4">
               <Turnstile
                 siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
