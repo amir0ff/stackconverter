@@ -55,15 +55,15 @@ jobs:
       - name: 🗝️ Add server to known hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H 203.161.53.120 >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts
 
       - name: 📤 Copy backend to VPS
         run: |
-          rsync -avz --exclude 'node_modules' -e "ssh -o StrictHostKeyChecking=no" backend/ root@203.161.53.120:/home/amiroff/stackconverter-backend/
+          rsync -avz --exclude 'node_modules' -e "ssh -o StrictHostKeyChecking=no" backend/ root@${{ secrets.VPS_IP }}:/home/amiroff/stackconverter-backend/
 
       - name: 📤 Copy frontend build to VPS
         run: |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" frontend/dist/ root@203.161.53.120:/home/amiroff/amiroff.me/stackconverter/
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" frontend/dist/ root@${{ secrets.VPS_IP }}:/home/amiroff/amiroff.me/stackconverter/
 
       - name: 🚚 Deploy to VPS
         run: |
@@ -121,12 +121,12 @@ jobs:
           EOF
 
           chmod +x deploy.sh
-          ssh root@203.161.53.120 'bash -s' < deploy.sh
+          ssh root@${{ secrets.VPS_IP }} 'bash -s' < deploy.sh
 
       - name: 🔍 Verify deployment
         run: |
           echo "🔍 Checking PM2 status and backend health..."
-          ssh root@203.161.53.120 '
+          ssh root@${{ secrets.VPS_IP }} '
             pm2 status
             curl -s http://localhost:5000/ || echo "Backend not responding"
             ls -la /home/amiroff/amiroff.me/stackconverter/
