@@ -27,11 +27,6 @@ jobs:
         version: 8
         run_install: false
 
-    - name: 🛠️ Ensure pnpm is in PATH (corepack)
-      run: |
-        corepack enable
-        corepack prepare pnpm@8.0.0 --activate
-
     - name: 📥 Install dependencies
       run: pnpm install
 
@@ -64,16 +59,16 @@ jobs:
         
         echo "📁 Creating directories..."
         sudo mkdir -p /home/amiroff/stackconverter-backend
-        sudo mkdir -p /home/amiroff/public_html/stackconverter
+        sudo mkdir -p /home/amiroff/amiroff.me/stackconverter
         
         sudo chown -R amiroff:amiroff /home/amiroff/stackconverter-backend
-        sudo chown -R amiroff:amiroff /home/amiroff/public_html/stackconverter
+        sudo chown -R amiroff:amiroff /home/amiroff/amiroff.me/stackconverter
         
         echo "📤 Copying backend files..."
         cp -r backend/* /home/amiroff/stackconverter-backend/
         
         echo "📤 Copying frontend build..."
-        cp -r frontend/dist/* /home/amiroff/public_html/stackconverter/
+        cp -r frontend/dist/* /home/amiroff/amiroff.me/stackconverter/
         
         echo "🔑 Setting up environment variables..."
         cat > /home/amiroff/stackconverter-backend/.env << 'ENVEOF'
@@ -99,7 +94,7 @@ jobs:
         pm2 startup
         
         echo "📝 Creating .htaccess for API proxy..."
-        cat > /home/amiroff/public_html/stackconverter/.htaccess << 'HTACCESSEOF'
+        cat > /home/amiroff/amiroff.me/stackconverter/.htaccess << 'HTACCESSEOF'
         RewriteEngine On
         
         # Proxy API calls to backend
@@ -132,7 +127,7 @@ jobs:
         ssh root@203.161.53.120 '
           pm2 status
           curl -s http://localhost:5000/ || echo "Backend not responding"
-          ls -la /home/amiroff/public_html/stackconverter/
+          ls -la /home/amiroff/amiroff.me/stackconverter/
         '
 
     - name: 🎉 Deployment Summary

@@ -9,7 +9,7 @@ A full-stack, AI-powered codebase converter. Instantly convert code between fram
 
 ## Features
 - 🔄 Convert code between major frameworks (React, Vue, etc.)
-- 🧠 Powered by Google Gemini AI (`gemini-2.0-flash`)
+- 🧠 Powered by Google Gemini AI (`gemini-2.5-flash`)
 - 🖥️ Modern, responsive UI
 - 🚀 Monorepo for easy development and deployment
 
