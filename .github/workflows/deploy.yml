@@ -12,138 +12,130 @@ jobs:
       name: production
 
     steps:
-    - name: 🛎️ Checkout code
-      uses: actions/checkout@v4
+      - name: 🛎️ Checkout code
+        uses: actions/checkout@v4
 
-    - name: 📦 Install pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
 
-    - name: 🏗️ Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'pnpm'
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
 
-    - name: 🛠️ Fallback: Install pnpm manually if not found
-      run: |
-        if ! command -v pnpm; then
-          npm install -g pnpm@8
-        fi
+      - name: 📥 Install dependencies
+        run: pnpm install
 
-    - name: 📥 Install dependencies
-      run: pnpm install
+      - name: 🛠️ Build frontend
+        run: pnpm build:frontend
 
-    - name: 🛠️ Build frontend
-      run: pnpm build:frontend
+      - name: 🔐 Setup SSH agent
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: 🔐 Setup SSH agent
-      uses: webfactory/ssh-agent@v0.8.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: 🗝️ Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 203.161.53.120 >> ~/.ssh/known_hosts
 
-    - name: 🗝️ Add server to known hosts
-      run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -H 203.161.53.120 >> ~/.ssh/known_hosts
+      - name: 🚚 Deploy to VPS
+        run: |
+          echo "📝 Creating deployment script..."
+          cat > deploy.sh << 'EOF'
+          #!/bin/bash
+          set -e
 
-    - name: 🚚 Deploy to VPS
-      run: |
-        echo "📝 Creating deployment script..."
-        cat > deploy.sh << 'EOF'
-        #!/bin/bash
-        set -e
-        
-        echo "🔄 Updating system and installing Node.js..."
-        curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-        sudo apt-get install -y nodejs
-        
-        echo "🔄 Installing PM2..."
-        sudo npm install -g pm2
-        
-        echo "📁 Creating directories..."
-        sudo mkdir -p /home/amiroff/stackconverter-backend
-        sudo mkdir -p /home/amiroff/amiroff.me/stackconverter
-        
-        sudo chown -R amiroff:amiroff /home/amiroff/stackconverter-backend
-        sudo chown -R amiroff:amiroff /home/amiroff/amiroff.me/stackconverter
-        
-        echo "📤 Copying backend files..."
-        cp -r backend/* /home/amiroff/stackconverter-backend/
-        
-        echo "📤 Copying frontend build..."
-        cp -r frontend/dist/* /home/amiroff/amiroff.me/stackconverter/
-        
-        echo "🔑 Setting up environment variables..."
-        cat > /home/amiroff/stackconverter-backend/.env << 'ENVEOF'
-        GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
-        PORT=5000
-        NODE_ENV=production
-        ENVEOF
-        
-        sudo chown amiroff:amiroff /home/amiroff/stackconverter-backend/.env
-        sudo chmod 600 /home/amiroff/stackconverter-backend/.env
-        
-        echo "📦 Installing backend dependencies..."
-        cd /home/amiroff/stackconverter-backend
-        npm install --production
-        
-        echo "🛑 Stopping existing PM2 process (if any)..."
-        pm2 stop stackconverter-backend || true
-        pm2 delete stackconverter-backend || true
-        
-        echo "🚀 Starting backend with PM2..."
-        pm2 start index.js --name \"stackconverter-backend\" --user amiroff
-        pm2 save
-        pm2 startup
-        
-        echo "📝 Creating .htaccess for API proxy..."
-        cat > /home/amiroff/amiroff.me/stackconverter/.htaccess << 'HTACCESSEOF'
-        RewriteEngine On
-        
-        # Proxy API calls to backend
-        RewriteCond %{REQUEST_URI} ^/api/
-        RewriteRule ^api/(.*)$ http://localhost:5000/$1 [P,L]
-        
-        # Handle React Router
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteRule . /index.html [L]
-        HTACCESSEOF
-        
-        echo "🔧 Enabling Apache modules..."
-        sudo a2enmod proxy
-        sudo a2enmod proxy_http
-        sudo a2enmod rewrite
-        sudo systemctl reload apache2
-        
-        echo "✅ Deployment completed successfully!"
-        echo "🌐 Frontend: https://amiroff.me/stackconverter/"
-        echo "🔧 Backend: http://localhost:5000"
-        EOF
-        
-        chmod +x deploy.sh
-        ssh root@203.161.53.120 'bash -s' < deploy.sh
+          echo "🔄 Updating system and installing Node.js..."
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
 
-    - name: 🔍 Verify deployment
-      run: |
-        echo "🔍 Checking PM2 status and backend health..."
-        ssh root@203.161.53.120 '
-          pm2 status
-          curl -s http://localhost:5000/ || echo "Backend not responding"
-          ls -la /home/amiroff/amiroff.me/stackconverter/
-        '
+          echo "🔄 Installing PM2..."
+          sudo npm install -g pm2
 
-    - name: 🎉 Deployment Summary
-      run: |
-        echo "🎉 Deployment Summary:"
-        echo "✅ Frontend: https://amiroff.me/stackconverter/"
-        echo "✅ Backend: http://localhost:5000"
-        echo "✅ PM2 managing backend process"
-        echo "✅ Environment variables configured"
-        echo ""
-        echo "📝 Next steps:"
-        echo "1. Test the application at https://amiroff.me/stackconverter/"
-        echo "2. Check PM2 logs: pm2 logs stackconverter-backend"
-        echo "3. Monitor with: pm2 monit" 
+          echo "📁 Creating directories..."
+          sudo mkdir -p /home/amiroff/stackconverter-backend
+          sudo mkdir -p /home/amiroff/amiroff.me/stackconverter
+          sudo chown -R amiroff:amiroff /home/amiroff/stackconverter-backend
+          sudo chown -R amiroff:amiroff /home/amiroff/amiroff.me/stackconverter
+
+          echo "📤 Copying backend files..."
+          cp -r backend/* /home/amiroff/stackconverter-backend/
+
+          echo "📤 Copying frontend build..."
+          cp -r frontend/dist/* /home/amiroff/amiroff.me/stackconverter/
+
+          echo "🔑 Setting up environment variables..."
+          cat > /home/amiroff/stackconverter-backend/.env << 'ENVEOF'
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          PORT=5000
+          NODE_ENV=production
+          ENVEOF
+          sudo chown amiroff:amiroff /home/amiroff/stackconverter-backend/.env
+          sudo chmod 600 /home/amiroff/stackconverter-backend/.env
+
+          echo "📦 Installing backend dependencies..."
+          cd /home/amiroff/stackconverter-backend
+          npm install --production
+
+          echo "🛑 Stopping existing PM2 process (if any)..."
+          pm2 stop stackconverter-backend || true
+          pm2 delete stackconverter-backend || true
+
+          echo "🚀 Starting backend with PM2..."
+          pm2 start index.js --name \"stackconverter-backend\" --user amiroff
+          pm2 save
+          pm2 startup
+
+          echo "📝 Creating .htaccess for API proxy..."
+          cat > /home/amiroff/amiroff.me/stackconverter/.htaccess << 'HTACCESSEOF'
+          RewriteEngine On
+
+          # Proxy API calls to backend
+          RewriteCond %{REQUEST_URI} ^/api/
+          RewriteRule ^api/(.*)$ http://localhost:5000/$1 [P,L]
+
+          # Handle React Router
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule . /index.html [L]
+          HTACCESSEOF
+
+          echo "🔧 Enabling Apache modules..."
+          sudo a2enmod proxy
+          sudo a2enmod proxy_http
+          sudo a2enmod rewrite
+          sudo systemctl reload apache2
+
+          echo "✅ Deployment completed successfully!"
+          echo "🌐 Frontend: https://amiroff.me/stackconverter/"
+          echo "🔧 Backend: http://localhost:5000"
+          EOF
+
+          chmod +x deploy.sh
+          ssh root@203.161.53.120 'bash -s' < deploy.sh
+
+      - name: 🔍 Verify deployment
+        run: |
+          echo "🔍 Checking PM2 status and backend health..."
+          ssh root@203.161.53.120 '
+            pm2 status
+            curl -s http://localhost:5000/ || echo "Backend not responding"
+            ls -la /home/amiroff/amiroff.me/stackconverter/
+          '
+
+      - name: 🎉 Deployment Summary
+        run: |
+          echo "🎉 Deployment Summary:"
+          echo "✅ Frontend: https://amiroff.me/stackconverter/"
+          echo "✅ Backend: http://localhost:5000"
+          echo "✅ PM2 managing backend process"
+          echo "✅ Environment variables configured"
+          echo ""
+          echo "📝 Next steps:"
+          echo "1. Test the application at https://amiroff.me/stackconverter/"
+          echo "2. Check PM2 logs: pm2 logs stackconverter-backend"
+          echo "3. Monitor with: pm2 monit"
