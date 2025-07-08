@@ -9,7 +9,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf node_modules"
   },
-  "keywords": ["api", "gemini", "code-converter"],
+  "keywords": [
+    "api",
+    "gemini",
+    "code-converter"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
@@ -19,6 +23,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
+    "express-rate-limit": "^7.5.1",
     "multer": "^2.0.1",
     "unzipper": "^0.12.3"
   },

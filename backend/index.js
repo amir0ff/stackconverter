@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const unzipper = require('unzipper');
 const archiver = require('archiver');
+const rateLimit = require('express-rate-limit');
 
 dotenv.config();
 
@@ -48,6 +49,14 @@ const uploadsDir = path.join(__dirname, 'uploads/');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
+
+// Rate limiting middleware (protects all endpoints)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // limit each IP to 30 requests per windowMs
+  message: { error: 'Too many requests, please try again later.' }
+});
+app.use(limiter);
 
 // Helper: Get file extension for target stack
 function getFileExtension(targetStack, originalPath) {

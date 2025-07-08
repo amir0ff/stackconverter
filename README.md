@@ -6,7 +6,7 @@ A full-stack, AI-powered codebase converter. Instantly convert code between fram
 ## Monorepo Structure
 
 - `/frontend` — Vite + React app (UI)
-- `/backend` — Node.js + Express API (Gemini integration)
+- `/backend` — Node.js + Express API
 
 ## Features
 - 🔄 Convert code between major frameworks (React, Vue, Angular, Svelte, SolidJS, Preact)
@@ -66,10 +66,6 @@ pnpm clean
 # Lint all packages
 pnpm lint
 ```
-
-## Usage
-- Enter your code, select source and target stacks, and click Convert.
-- The backend uses Gemini AI to convert your code and returns the result.
 
 ## Deployment (Production)
 - **Frontend:** Deployed to https://amiroff.me/stackconverter

@@ -36,6 +36,8 @@ jobs:
 
       - name: 🛠️ Build frontend
         run: pnpm build:frontend
+        env:
+          VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
 
       - name: 🗂️ List workspace files
         run: |

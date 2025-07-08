@@ -9,6 +9,8 @@ import ErrorBanner from './ui/ErrorBanner';
 import CodePanel from './ui/CodePanel';
 import FeaturesSection from './ui/FeaturesSection';
 import { Tooltip } from 'react-tooltip';
+import { Turnstile } from '@marsidev/react-turnstile';
+import { useState } from 'react';
 
 const StackConverter: React.FC = () => {
   const {
@@ -29,6 +31,8 @@ const StackConverter: React.FC = () => {
     handleFileChange,
     handleRemoveFile,
   } = useFileUpload(setFileUploadState, setError);
+
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const handleSourceStackChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSourceStack = e.target.value;
@@ -65,6 +69,14 @@ const StackConverter: React.FC = () => {
             disabled={conversionState.isConverting}
             stackOptions={stackOptions}
           />
+
+          {import.meta.env.MODE === 'production' && (
+            <Turnstile
+              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+              onSuccess={setCaptchaToken}
+              options={{ theme: 'light' }}
+            />
+          )}
 
           <ConvertButton
             onClick={convertCode}
