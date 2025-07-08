@@ -13,6 +13,9 @@ import { Turnstile } from '@marsidev/react-turnstile';
 import { useState } from 'react';
 
 const StackConverter: React.FC = () => {
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [autoDetectedStack, setAutoDetectedStack] = useState<string | null>(null);
+
   const {
     conversionState,
     fileUploadState,
@@ -23,20 +26,19 @@ const StackConverter: React.FC = () => {
     setError,
     resetCode,
     setFileUploadState,
-  } = useConversion();
+  } = useConversion(setAutoDetectedStack);
 
   const {
     fileInputRef,
     handleFileIconClick,
     handleFileChange,
     handleRemoveFile,
-  } = useFileUpload(setFileUploadState, setError);
-
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  } = useFileUpload(setFileUploadState, setError, updateSourceStack, setAutoDetectedStack);
 
   const handleSourceStackChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSourceStack = e.target.value;
     updateSourceStack(newSourceStack);
+    setAutoDetectedStack(null); // Clear auto-detection when user manually changes
     
     if (!fileUploadState.uploadedFile) {
       // If switching to the stack that matches the last conversion target and we have a converted result, use it
@@ -68,6 +70,7 @@ const StackConverter: React.FC = () => {
             onTargetStackChange={handleTargetStackChange}
             disabled={conversionState.isConverting}
             stackOptions={stackOptions}
+            autoDetectedStack={autoDetectedStack}
           />
 
           {import.meta.env.MODE === 'production' && !captchaToken && (

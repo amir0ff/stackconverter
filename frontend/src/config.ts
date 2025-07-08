@@ -9,4 +9,5 @@ export const API_ENDPOINTS = {
   convert: `${API_BASE_URL}/convert`,
   upload: `${API_BASE_URL}/upload`,
   batchConvert: `${API_BASE_URL}/batch-convert`,
+  detectStack: `${API_BASE_URL}/detect-stack`,
 } as const; 

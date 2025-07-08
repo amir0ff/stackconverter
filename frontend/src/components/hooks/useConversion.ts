@@ -3,7 +3,7 @@ import { ConversionState, FileUploadState } from '../types';
 import { exampleCode } from '../constants';
 import { API_ENDPOINTS } from '../../config';
 
-export const useConversion = () => {
+export const useConversion = (setAutoDetectedStack?: (stack: string | null) => void) => {
   const [conversionState, setConversionState] = useState<ConversionState>({
     sourceCode: exampleCode.react,
     convertedCode: '',
@@ -119,6 +119,9 @@ export const useConversion = () => {
       uploadMessage: null,
       uploadedServerFilename: null,
     });
+    if (setAutoDetectedStack) {
+      setAutoDetectedStack(null);
+    }
   };
 
   return {
