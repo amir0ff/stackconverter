@@ -115,9 +115,9 @@ jobs:
           cd /home/amiroff/stackconverter-backend
           npm install --production
 
-          echo "🛑 Stopping existing PM2 process (if any)..."
-          pm2 stop stackconverter-backend || true
-          pm2 delete stackconverter-backend || true
+          echo "🛑 Stopping all existing PM2 processes (if any)..."
+          pm2 stop all || true
+          pm2 delete all || true
 
           echo "🚀 Starting backend with PM2..."
           pm2 start index.js --name "stackconverter-backend" --user amiroff -f
