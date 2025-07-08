@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ConversionState, FileUploadState } from '../types';
 import { exampleCode } from '../constants';
+import { API_ENDPOINTS } from '../../config';
 
 export const useConversion = () => {
   const [conversionState, setConversionState] = useState<ConversionState>({
@@ -36,7 +37,7 @@ export const useConversion = () => {
     if (fileUploadState.uploadedFile && fileUploadState.uploadedServerFilename) {
       // Batch convert: download zip
       try {
-        const response = await fetch('/batch-convert', {
+        const response = await fetch(API_ENDPOINTS.batchConvert, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -68,7 +69,7 @@ export const useConversion = () => {
 
     // Single file conversion
     try {
-      const response = await fetch('/convert', {
+      const response = await fetch(API_ENDPOINTS.convert, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -37,6 +37,8 @@ export interface CodePanelProps {
   isUploading?: boolean;
   fileInputRef?: React.RefObject<HTMLInputElement>;
   onFileChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onCodeChange?: (code: string) => void;
+  isEditable?: boolean;
   showEmptyState?: boolean;
   emptyStateMessage?: string;
   emptyStateIcon?: React.ReactNode;

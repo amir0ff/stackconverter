@@ -1,5 +1,5 @@
-import React from 'react';
-import { Copy, RefreshCw, Upload, Loader2, Download, Code } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Copy, RefreshCw, Upload, Loader2, Download, Code, Edit2, Eye } from 'lucide-react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -10,6 +10,9 @@ import { stackOptions, stackToLanguage } from '../constants';
 interface CodePanelPropsWithTooltips extends CodePanelProps {
   uploadTooltipProps?: React.HTMLAttributes<HTMLButtonElement>;
   resetTooltipProps?: React.HTMLAttributes<HTMLButtonElement>;
+  editTooltipProps?: React.HTMLAttributes<HTMLButtonElement>;
+  onCodeChange?: (code: string) => void;
+  isEditable?: boolean;
 }
 
 const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
@@ -33,8 +36,21 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   emptyStateIcon = <Code className="h-12 w-12 mx-auto mb-2 opacity-50" />,
   uploadTooltipProps = {},
   resetTooltipProps = {},
+  editTooltipProps = {},
+  onCodeChange,
+  isEditable = false,
 }) => {
   const selectedStack = stackOptions.find(s => s.value === stack);
+  const [isEditing, setIsEditing] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea to fit content
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [code]);
 
   const handleDownload = () => {
     if (!code) return;
@@ -56,6 +72,20 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
     } catch { /* ignore */ }
   };
 
+  const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (onCodeChange) {
+      onCodeChange(e.target.value);
+    }
+  };
+
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+    // Focus the textarea when entering edit mode
+    if (!isEditing && textareaRef.current) {
+      setTimeout(() => textareaRef.current?.focus(), 100);
+    }
+  };
+
   return (
     <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700 flex flex-col h-full">
       <div className="bg-gray-700/50 px-6 py-4 border-b border-gray-600 flex items-center justify-between">
@@ -63,8 +93,23 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
           {title}
           <span className="text-gray-300">{selectedStack?.icon}</span>
           <span>{selectedStack?.label}</span>
+          {isEditable && isEditing && (
+            <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">
+              Editing
+            </span>
+          )}
         </h3>
         <div className="flex items-center gap-2">
+          {isEditable && !uploadedFile && (
+            <button
+              onClick={toggleEditMode}
+              className="text-gray-400 hover:text-white transition-colors"
+              title={isEditing ? "View formatted code" : "Edit code"}
+              {...editTooltipProps}
+            >
+              {isEditing ? <Eye className="h-4 w-4" /> : <Edit2 className="h-4 w-4" />}
+            </button>
+          )}
           {fileInputRef && onFileChange && (
             <>
               <input
@@ -153,14 +198,28 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
           </div>
         ) : (
           <>
-            <SyntaxHighlighter
-              language={language}
-              style={tomorrow}
-              customStyle={{ minHeight: '20rem', fontSize: 14, borderRadius: '0.75rem', background: 'transparent', padding: 24 }}
-              showLineNumbers
-            >
-              {code}
-            </SyntaxHighlighter>
+            {isEditable && isEditing ? (
+              <div className="p-6 h-full">
+                <textarea
+                  ref={textareaRef}
+                  value={code}
+                  onChange={handleCodeChange}
+                  className="w-full h-full min-h-[20rem] bg-gray-900/50 text-gray-100 font-mono text-sm leading-relaxed p-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
+                  placeholder={`// Enter your ${stack} code here...
+// You can edit this code directly and then convert it to another framework`}
+                  spellCheck={false}
+                />
+              </div>
+            ) : (
+              <SyntaxHighlighter
+                language={language}
+                style={tomorrow}
+                customStyle={{ minHeight: '20rem', fontSize: 14, borderRadius: '0.75rem', background: 'transparent', padding: 24 }}
+                showLineNumbers
+              >
+                {code}
+              </SyntaxHighlighter>
+            )}
             {showEmptyState && !code && (
               <div className="absolute inset-0 h-full w-full flex items-center justify-center text-gray-500 pointer-events-none">
                 <div className="text-center">

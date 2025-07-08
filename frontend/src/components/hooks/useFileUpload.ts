@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { FileUploadState } from '../types';
+import { API_ENDPOINTS } from '../../config';
 
 export const useFileUpload = (
   setFileUploadState: (state: FileUploadState | ((prev: FileUploadState) => FileUploadState)) => void,
@@ -28,7 +29,7 @@ export const useFileUpload = (
       try {
         const formData = new FormData();
         formData.append('file', file);
-        const response = await fetch('/upload', {
+        const response = await fetch(API_ENDPOINTS.upload, {
           method: 'POST',
           body: formData,
         });
