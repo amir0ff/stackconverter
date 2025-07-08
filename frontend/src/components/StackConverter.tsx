@@ -28,7 +28,7 @@ const StackConverter: React.FC = () => {
     handleFileIconClick,
     handleFileChange,
     handleRemoveFile,
-  } = useFileUpload(fileUploadState, setFileUploadState, setError);
+  } = useFileUpload(setFileUploadState, setError);
 
   const handleSourceStackChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSourceStack = e.target.value;
