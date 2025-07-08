@@ -108,7 +108,7 @@ jobs:
           pm2 delete stackconverter-backend || true
 
           echo "🚀 Starting backend with PM2..."
-          pm2 start index.js --name \"stackconverter-backend\" --user amiroff
+          pm2 start index.js --name "stackconverter-backend" --user amiroff -f
           pm2 save
           pm2 startup
 
