@@ -20,10 +20,9 @@ jobs:
         with:
           node-version: '18'
           cache: 'pnpm'
-          corepack: true
 
-      - name: 📦 Enable pnpm via corepack
-        run: corepack enable
+      - name: 📦 Install pnpm globally
+        run: npm install -g pnpm@8
 
       - name: 📥 Install dependencies
         run: pnpm install
