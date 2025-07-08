@@ -2,7 +2,6 @@ import { useRef } from 'react';
 import { FileUploadState } from '../types';
 
 export const useFileUpload = (
-  fileUploadState: FileUploadState,
   setFileUploadState: (state: FileUploadState | ((prev: FileUploadState) => FileUploadState)) => void,
   setError: (error: string | null) => void
 ) => {

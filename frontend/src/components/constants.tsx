@@ -1,4 +1,3 @@
-import React from 'react';
 import { FaReact } from 'react-icons/fa';
 import { SiVuedotjs, SiAngular, SiSvelte, SiSolid, SiPreact } from 'react-icons/si';
 import { StackOption } from './types';
