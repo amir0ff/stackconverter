@@ -495,19 +495,7 @@ app.get('/', (req, res) => {
 });
 
 // --- Ensure CORS headers on all responses, even errors and 404s ---
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  const allowedOrigins = ['https://amiroff.me', 'http://localhost:3000'];
-  if (!origin || allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin || '*');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-  }
-  next();
-});
-
-// --- Global error handler to always set CORS headers ---
+// Add CORS headers in the global error handler only
 app.use((err, req, res, next) => {
   const origin = req.headers.origin;
   const allowedOrigins = ['https://amiroff.me', 'http://localhost:3000'];
