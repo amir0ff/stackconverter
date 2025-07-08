@@ -23,10 +23,13 @@ jobs:
       - name: 📦 Install pnpm globally
         run: npm install -g pnpm@8
 
+      - name: Print pnpm store path
+        run: pnpm store path
+
       - name: 💾 Restore pnpm cache
         uses: actions/cache@v4
         with:
-          path: ~/.pnpm-store
+          path: ~/.local/share/pnpm/store/v3
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             pnpm-store-${{ runner.os }}-
@@ -37,7 +40,7 @@ jobs:
       - name: 💾 Save pnpm cache
         uses: actions/cache@v4
         with:
-          path: ~/.pnpm-store
+          path: ~/.local/share/pnpm/store/v3
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: 🛠️ Build frontend
