@@ -49,7 +49,7 @@ export const useFileUpload = (
             isUploading: false,
           }));
         }
-      } catch (err) {
+      } catch {
         setError('Upload failed.');
         setFileUploadState(prev => ({
           ...prev,

@@ -62,13 +62,7 @@ export const useConversion = () => {
           isConverting: false,
           activeTargetStack: prev.targetStack,
         }));
-      } catch (err) {
-        setConversionState(prev => ({
-          ...prev,
-          error: 'Batch conversion failed',
-          isConverting: false,
-        }));
-      }
+      } catch { /* ignore */ }
       return;
     }
 
@@ -90,12 +84,8 @@ export const useConversion = () => {
         isConverting: false,
         activeTargetStack: prev.targetStack,
       }));
-    } catch (error) {
-      setConversionState(prev => ({
-        ...prev,
-        error: 'Error connecting to backend.',
-        isConverting: false,
-      }));
+    } catch {
+      setError('Error connecting to backend.');
     }
   };
 

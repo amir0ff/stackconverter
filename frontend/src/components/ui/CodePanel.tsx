@@ -53,9 +53,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
     if (!code) return;
     try {
       await navigator.clipboard.writeText(code);
-    } catch (err) {
-      console.error('Failed to copy text');
-    }
+    } catch { /* ignore */ }
   };
 
   return (
