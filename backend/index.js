@@ -26,10 +26,16 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   }
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
   next();
+});
+
+// --- Handle all OPTIONS preflight requests globally (Express 5.x safe) ---
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
 });
 
 // Parse JSON bodies for all requests
@@ -395,6 +401,12 @@ app.post('/batch-convert', async (req, res) => {
   const processEntries = [];
   fs.createReadStream(zipPath)
     .pipe(unzipper.Parse())
+    .on('error', (err) => {
+      console.error('Unzip error:', err);
+      if (!res.headersSent) {
+        res.status(400).json({ error: 'Invalid or corrupted zip file.' });
+      }
+    })
     .on('entry', function (entry) {
       const ext = path.extname(entry.path).toLowerCase();
       const allowedExts = [".js", ".jsx", ".ts", ".tsx", ".vue", ".svelte"];
