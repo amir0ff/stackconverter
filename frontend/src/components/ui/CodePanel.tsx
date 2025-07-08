@@ -91,8 +91,12 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
       <div className="bg-gray-700/50 px-6 py-4 border-b border-gray-600 flex items-center justify-between">
         <h3 className="text-white font-semibold text-lg flex items-center gap-2">
           {title}
-          <span className="text-gray-300">{selectedStack?.icon}</span>
-          <span>{selectedStack?.label}</span>
+          {!isConverting && (
+            <>
+              <span className="text-gray-300">{selectedStack?.icon}</span>
+              <span>{selectedStack?.label}</span>
+            </>
+          )}
           {isEditable && isEditing && (
             <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">
               Editing
