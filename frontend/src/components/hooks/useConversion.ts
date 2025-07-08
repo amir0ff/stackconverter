@@ -21,7 +21,7 @@ export const useConversion = () => {
     uploadedServerFilename: null,
   });
 
-  const convertCode = async (): Promise<void> => {
+  const convertCode = async (captchaToken?: string | null): Promise<void> => {
     setConversionState(prev => ({ ...prev, isConverting: true, convertedCode: '', error: null }));
     
     if (conversionState.sourceStack === conversionState.targetStack) {
@@ -76,6 +76,7 @@ export const useConversion = () => {
           sourceCode: conversionState.sourceCode,
           sourceStack: conversionState.sourceStack,
           targetStack: conversionState.targetStack,
+          captchaToken,
         }),
       });
       const data = await response.json();

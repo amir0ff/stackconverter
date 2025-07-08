@@ -79,7 +79,7 @@ const StackConverter: React.FC = () => {
           )}
 
           <ConvertButton
-            onClick={convertCode}
+            onClick={() => convertCode(captchaToken)}
             disabled={conversionState.isConverting || conversionState.sourceStack === conversionState.targetStack}
             isConverting={conversionState.isConverting}
           />
