@@ -1,4 +1,4 @@
-name: Deploy to Firebase
+name: 🚀 Deploy to Firebase
 
 on:
   push:
@@ -9,24 +9,36 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # 📥 Checkout the repository
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v2
+      # 📦 Set up pnpm
+      - name: 📦 Set up pnpm
+        uses: pnpm/action-setup@v2
         with:
           version: 8
 
-      - name: Install dependencies
+      # 📚 Install dependencies
+      - name: 📚 Install dependencies
         run: pnpm install
 
-      - name: Build frontend
+      # 🧹 Lint frontend
+      - name: 🧹 Lint frontend
+        run: |
+          cd frontend
+          pnpm run lint
+          cd ..
+
+      # 🛠️ Build the frontend
+      - name: 🛠️ Build frontend
         run: |
           cd frontend
           pnpm run build
           cd ..
 
-      # (Optional) Add test/lint steps here
-
-      - name: Deploy to Firebase
+      # 🔥 Deploy to Firebase Hosting and Functions
+      - name: 🔥 Deploy to Firebase
         uses: w9jds/firebase-action@v14.9.0
         with:
           args: deploy --only hosting,functions
