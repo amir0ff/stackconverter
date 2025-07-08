@@ -44,14 +44,16 @@ const upload = multer({
       'application/javascript',
       'text/x-typescript',
       'application/x-typescript',
-      'text/plain'
+      'text/plain',
+      'text/html', // for .vue files
+      'application/x-vue' // some systems
     ];
-    const allowedExts = ['.zip', '.js', '.jsx', '.ts', '.tsx'];
+    const allowedExts = ['.zip', '.js', '.jsx', '.ts', '.tsx', '.vue', '.svelte'];
     const ext = path.extname(file.originalname).toLowerCase();
     if (allowedTypes.includes(file.mimetype) || allowedExts.includes(ext)) {
       cb(null, true);
     } else {
-      cb(new Error('Only .zip, .js, .jsx, .ts, .tsx files are allowed!'));
+      cb(new Error('Only .zip, .js, .jsx, .ts, .tsx, .vue, .svelte files are allowed!'));
     }
   },
   limits: { fileSize: 20 * 1024 * 1024 }, // 20MB limit
@@ -62,6 +64,82 @@ const uploadsDir = path.join(__dirname, 'uploads/');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
+
+// Cleanup old files (older than 5 minutes for testing, change to 1 hour for production)
+function cleanupOldFiles() {
+  const fiveMinutesAgo = Date.now() - (5 * 60 * 1000); // 5 minutes for testing
+  // const oneHourAgo = Date.now() - (60 * 60 * 1000); // 1 hour for production
+  console.log('Running periodic cleanup...');
+  console.log('Current time:', new Date().toISOString());
+  console.log('Five minutes ago:', new Date(fiveMinutesAgo).toISOString());
+  
+  fs.readdir(uploadsDir, (err, files) => {
+    if (err) {
+      console.error('Error reading uploads directory:', err);
+      return;
+    }
+    console.log('Found files:', files.length);
+    
+    files.forEach(file => {
+      const filePath = path.join(uploadsDir, file);
+      fs.stat(filePath, (err, stats) => {
+        if (err) {
+          console.error('Error getting stats for file:', file, err);
+          return;
+        }
+        
+        const fileTime = stats.mtime.getTime();
+        const isOld = fileTime < fiveMinutesAgo;
+        
+        console.log(`File: ${file}, Modified: ${new Date(fileTime).toISOString()}, Is old: ${isOld}`);
+        
+        if (isOld) {
+          console.log(`Attempting to delete file: ${file}`);
+          fs.unlink(filePath, (err) => {
+            if (err) {
+              console.error('Failed to delete old file:', file, err);
+              console.error('Error details:', err.code, err.message);
+            } else {
+              console.log('Successfully cleaned up old file:', file);
+            }
+          });
+        } else {
+          console.log(`File ${file} is not old enough yet`);
+        }
+      });
+    });
+  });
+}
+
+// Cleanup ALL files on startup
+function cleanupAllFilesOnStartup() {
+  console.log('Running startup cleanup - deleting ALL files...');
+  
+  fs.readdir(uploadsDir, (err, files) => {
+    if (err) {
+      console.error('Error reading uploads directory:', err);
+      return;
+    }
+    console.log(`Found ${files.length} files to delete on startup`);
+    
+    files.forEach(file => {
+      const filePath = path.join(uploadsDir, file);
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error('Failed to delete file on startup:', file, err);
+        } else {
+          console.log('Deleted file on startup:', file);
+        }
+      });
+    });
+  });
+}
+
+// Run cleanup every 30 minutes
+setInterval(cleanupOldFiles, 30 * 60 * 1000);
+
+// Initial cleanup - delete ALL files on startup
+cleanupAllFilesOnStartup();
 
 // Rate limiting middleware (protects all endpoints)
 const limiter = rateLimit({
@@ -136,6 +214,26 @@ ${sourceCode}
 `;
 }
 
+// Helper: Build stack detection prompt for Gemini
+function buildDetectionPrompt(sourceCode) {
+  return `Analyze the following code and determine which JavaScript framework it uses. 
+
+Available frameworks: React, Vue, Angular, Svelte, SolidJS, Preact
+
+Look for framework-specific patterns:
+- React: JSX syntax, useState, useEffect, React imports
+- Vue: <template>, <script setup>, ref(), reactive(), Vue imports
+- Angular: @Component decorator, Angular imports, TypeScript
+- Svelte: <script>, reactive syntax, onMount, Svelte imports
+- SolidJS: createSignal, createEffect, SolidJS imports
+- Preact: React-like syntax but Preact imports
+
+Return ONLY the framework name (react, vue, angular, svelte, solid, or preact) with no additional text, explanations, or formatting.
+
+Code to analyze:
+${sourceCode}`;
+}
+
 // Utility: Strip Markdown code block from Gemini API response
 function stripCodeBlock(code) {
   code = code.trim();
@@ -145,6 +243,31 @@ function stripCodeBlock(code) {
   code = code.replace(/```$/, '');
   return code.trim();
 }
+
+// POST /detect-stack endpoint
+app.post('/detect-stack', async (req, res) => {
+  const { sourceCode } = req.body;
+  if (!sourceCode) {
+    return res.status(400).json({ error: 'No source code provided.' });
+  }
+
+  try {
+    const prompt = buildDetectionPrompt(sourceCode);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const detectedStack = response.text().trim().toLowerCase();
+    
+    // Validate the detected stack
+    const validStacks = ['react', 'vue', 'angular', 'svelte', 'solid', 'preact'];
+    const stack = validStacks.includes(detectedStack) ? detectedStack : 'react';
+    
+    res.json({ detectedStack: stack });
+  } catch (error) {
+    console.error('Stack detection error:', error);
+    res.status(500).json({ error: 'Failed to detect stack.', details: error.message || error.toString() });
+  }
+});
 
 // POST /convert endpoint
 app.post('/convert', async (req, res) => {
@@ -262,7 +385,7 @@ app.post('/batch-convert', async (req, res) => {
     .pipe(unzipper.Parse())
     .on('entry', function (entry) {
       const ext = path.extname(entry.path).toLowerCase();
-      const allowedExts = [".js", ".jsx", ".ts", ".tsx"];
+      const allowedExts = [".js", ".jsx", ".ts", ".tsx", ".vue", ".svelte"];
       const dangerousExts = [".exe", ".sh", ".bat", ".cmd", ".php", ".py", ".rb", ".dll"];
       if (dangerousExts.includes(ext)) {
         // Skip dangerous files
@@ -334,6 +457,12 @@ app.post('/batch-convert', async (req, res) => {
     .on('close', async () => {
       await Promise.all(processEntries);
       archive.finalize();
+      
+      // Clean up the uploaded file after processing
+      fs.unlink(zipPath, (err) => {
+        if (err) console.error('Failed to delete uploaded file:', filename);
+        else console.log('Cleaned up uploaded file:', filename);
+      });
     });
 });
 

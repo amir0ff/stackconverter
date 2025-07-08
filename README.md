@@ -76,6 +76,3 @@ pnpm lint
 
 ## Roadmap
 See [ROADMAP.md](./ROADMAP.md) for planned features and progress.
-
-## License
-[MIT](./LICENSE)
