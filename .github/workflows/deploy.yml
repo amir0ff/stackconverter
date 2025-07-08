@@ -8,7 +8,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+    environment:
+      name: production
+
     steps:
     - name: 🛎️ Checkout code
       uses: actions/checkout@v4
@@ -23,6 +25,12 @@ jobs:
       uses: pnpm/action-setup@v2
       with:
         version: 8
+        run_install: false
+
+    - name: 🛠️ Ensure pnpm is in PATH (corepack)
+      run: |
+        corepack enable
+        corepack prepare pnpm@8.0.0 --activate
 
     - name: 📥 Install dependencies
       run: pnpm install
