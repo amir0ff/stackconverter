@@ -1,4 +1,6 @@
 node_modules
 /backend/.env
 /backend/uploads
+/frontend/dist
 .cursor/
+*.log
