@@ -3,7 +3,7 @@ const isDevelopment = import.meta.env.DEV;
 
 export const API_BASE_URL = isDevelopment 
   ? 'http://localhost:5000'  // Development - direct backend
-  : 'http://api.amiroff.me:5000'; // Production - public backend URL
+  : 'https://api.amiroff.me'; // Production - secure backend via reverse proxy
 
 export const API_ENDPOINTS = {
   convert: `${API_BASE_URL}/convert`,
