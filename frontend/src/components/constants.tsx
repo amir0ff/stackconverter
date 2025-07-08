@@ -227,7 +227,7 @@ export default Counter;`
 
 export const features = [
   {
-    icon: '🔄',
+    icon: '🧠',
     title: 'Smart Conversion',
     description: 'AI-powered analysis converts components, state management, and lifecycle methods intelligently.',
     color: 'text-blue-400'
