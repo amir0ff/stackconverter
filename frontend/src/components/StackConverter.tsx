@@ -71,11 +71,13 @@ const StackConverter: React.FC = () => {
           />
 
           {import.meta.env.MODE === 'production' && (
-            <Turnstile
-              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-              onSuccess={setCaptchaToken}
-              options={{ theme: 'light' }}
-            />
+            <div className="flex justify-center my-4">
+              <Turnstile
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                onSuccess={setCaptchaToken}
+                options={{ theme: 'light' }}
+              />
+            </div>
           )}
 
           <ConvertButton

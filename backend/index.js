@@ -9,6 +9,7 @@ const fs = require('fs');
 const unzipper = require('unzipper');
 const archiver = require('archiver');
 const rateLimit = require('express-rate-limit');
+const axios = require('axios');
 
 dotenv.config();
 
@@ -125,9 +126,31 @@ ${sourceCode}
 
 // POST /convert endpoint
 app.post('/convert', async (req, res) => {
-  const { sourceCode, sourceStack, targetStack } = req.body;
+  const { sourceCode, sourceStack, targetStack, captchaToken } = req.body;
   if (!sourceCode || !sourceStack || !targetStack) {
     return res.status(400).json({ error: 'Missing required fields.' });
+  }
+
+  // Turnstile verification (only in production)
+  if (process.env.NODE_ENV === 'production') {
+    if (!captchaToken) {
+      return res.status(400).json({ error: 'Missing CAPTCHA token.' });
+    }
+    try {
+      const verifyRes = await axios.post(
+        'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+        new URLSearchParams({
+          secret: process.env.TURNSTILE_SECRET_KEY,
+          response: captchaToken,
+        }),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
+      if (!verifyRes.data.success) {
+        return res.status(403).json({ error: 'Failed CAPTCHA verification.' });
+      }
+    } catch (err) {
+      return res.status(500).json({ error: 'CAPTCHA verification error.' });
+    }
   }
 
   try {

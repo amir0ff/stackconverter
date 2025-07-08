@@ -95,6 +95,7 @@ jobs:
           echo "🔑 Setting up environment variables..."
           cat > /home/amiroff/stackconverter-backend/.env << 'ENVEOF'
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           PORT=5000
           NODE_ENV=production
           ENVEOF
