@@ -9,7 +9,7 @@ A full-stack, AI-powered codebase converter. Instantly convert code between fram
 - `/backend` — Node.js + Express API (Gemini integration)
 
 ## Features
-- 🔄 Convert code between major frameworks (React, Vue, etc.)
+- 🔄 Convert code between major frameworks (React, Vue, Angular, Svelte, SolidJS, Preact)
 - 🧠 Powered by Google Gemini AI (`gemini-2.5-flash`)
 - 🖥️ Modern, responsive UI
 - 🚀 Monorepo for easy development and deployment
@@ -32,16 +32,14 @@ pnpm install
 
 ### 3. Run the App
 
-**Option A: Run both frontend and backend**
+**Run both frontend and backend:**
 ```bash
-pnpm dev # Both apps with file watching
+pnpm dev
 ```
-
-**Option B: Run individually**
+Or run individually:
 ```bash
-pnpm dev:backend # Nodemon watching backend
-
-pnpm dev:frontend # Vite dev server
+pnpm dev:backend   # Backend (nodemon)
+pnpm dev:frontend  # Frontend (Vite)
 ```
 
 - Frontend: [http://localhost:3000](http://localhost:3000)
@@ -56,19 +54,22 @@ pnpm install
 # Run both apps in parallel
 pnpm dev
 
-# Build frontend
+# Build all packages
+pnpm build
+
+# Build frontend only
 pnpm build:frontend
 
 # Clean all node_modules
 pnpm clean
 
-# Run linting across all packages
+# Lint all packages
 pnpm lint
 ```
 
 ## Usage
 - Enter your code, select source and target stacks, and click Convert.
-- The backend will use Gemini AI to convert your code and return the result.
+- The backend uses Gemini AI to convert your code and returns the result.
 
 ## Deployment (Production)
 - **Frontend:** Deployed to https://amiroff.me/stackconverter
@@ -77,7 +78,7 @@ pnpm lint
 - **CI/CD:** Automated with GitHub Actions, rsync, and PM2 for zero-downtime deploys.
 
 ## Roadmap
-See [ROADMAP.md](../ROADMAP.md) for planned features and progress.
+See [ROADMAP.md](./ROADMAP.md) for planned features and progress.
 
 ## License
-MIT 
+[MIT](./LICENSE)
