@@ -70,6 +70,12 @@ pnpm lint
 - Enter your code, select source and target stacks, and click Convert.
 - The backend will use Gemini AI to convert your code and return the result.
 
+## Deployment (Production)
+- **Frontend:** Deployed to https://amiroff.me/stackconverter
+- **Backend:** Deployed to https://api.amiroff.me (Node.js/Express, managed by PM2)
+- **API Calls:** Frontend calls backend via HTTPS (reverse proxy with Apache .htaccess)
+- **CI/CD:** Automated with GitHub Actions, rsync, and PM2 for zero-downtime deploys.
+
 ## Roadmap
 See [ROADMAP.md](../ROADMAP.md) for planned features and progress.
 

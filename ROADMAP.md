@@ -32,8 +32,8 @@
 ## Phase 5: Quality, Testing, and Polish
 - [ ] Unit/integration tests: For backend and conversion logic
 - [ ] E2E tests: Simulate real user flows
-- [ ] CI/CD: Automate testing and deployment
-- [ ] Documentation: Update README and add user guides
+- [x] CI/CD: Automate testing and deployment (now uses GitHub Actions, rsync, PM2, and public API subdomain)
+- [x] Documentation: Update README and add user guides (production now uses api.amiroff.me with HTTPS reverse proxy, no Apache /api proxying)
 
 ## Testing Layer
 - [ ] Validate that converted code actually works (manual and/or automated testing of converted outputs)
