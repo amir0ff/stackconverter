@@ -57,7 +57,7 @@ jobs:
 
       - name: 📤 Copy backend to VPS
         run: |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" backend/ root@203.161.53.120:/home/amiroff/stackconverter-backend/
+          rsync -avz --exclude 'node_modules' -e "ssh -o StrictHostKeyChecking=no" backend/ root@203.161.53.120:/home/amiroff/stackconverter-backend/
 
       - name: 📤 Copy frontend build to VPS
         run: |
