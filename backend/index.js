@@ -482,6 +482,32 @@ app.get('/', (req, res) => {
   res.send('Stack Converter backend is running.');
 });
 
+// --- Ensure CORS headers on all responses, even errors and 404s ---
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = ['https://amiroff.me', 'http://localhost:3000'];
+  if (!origin || allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  }
+  next();
+});
+
+// --- Global error handler to always set CORS headers ---
+app.use((err, req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = ['https://amiroff.me', 'http://localhost:3000'];
+  if (!origin || allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  }
+  res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
+});
+
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
 }); 
