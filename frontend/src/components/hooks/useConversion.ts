@@ -52,7 +52,7 @@ export const useConversion = (setAutoDetectedStack?: (stack: string | null) => v
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'converted.zip';
+        a.download = `converted-${conversionState.targetStack}.zip`;
         document.body.appendChild(a);
         a.click();
         a.remove();

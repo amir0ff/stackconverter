@@ -155,15 +155,15 @@ function getFileExtension(targetStack, originalPath) {
   
   switch (targetStack) {
     case 'vue':
-      return ext.replace(/\.(js|jsx|ts|tsx)$/i, '.vue');
+      return ext.replace(/\.(js|jsx|ts|tsx|vue|svelte)$/i, '.vue');
     case 'svelte':
-      return ext.replace(/\.(js|jsx|ts|tsx)$/i, '.svelte');
+      return ext.replace(/\.(js|jsx|ts|tsx|vue|svelte)$/i, '.svelte');
     case 'angular':
-      return ext.replace(/\.(js|jsx|ts|tsx)$/i, '.ts');
+      return ext.replace(/\.(js|jsx|ts|tsx|vue|svelte)$/i, '.ts');
     case 'solid':
-      return ext.replace(/\.(js|jsx|ts|tsx)$/i, '.tsx');
+      return ext.replace(/\.(js|jsx|ts|tsx|vue|svelte)$/i, '.tsx');
     case 'preact':
-      return ext.replace(/\.(js|jsx|ts|tsx)$/i, '.tsx');
+      return ext.replace(/\.(js|jsx|ts|tsx|vue|svelte)$/i, '.tsx');
     default:
       return ext;
   }
@@ -376,7 +376,7 @@ app.post('/batch-convert', async (req, res) => {
   }
 
   res.setHeader('Content-Type', 'application/zip');
-  res.setHeader('Content-Disposition', 'attachment; filename="converted.zip"');
+  res.setHeader('Content-Disposition', `attachment; filename="converted-${targetStack}.zip"`);
   const archive = archiver('zip');
   archive.pipe(res);
 
@@ -399,13 +399,13 @@ app.post('/batch-convert', async (req, res) => {
             const code = codeBuffer.toString();
             try {
               const prompt = buildPrompt(code, sourceStack, targetStack);
-              const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+              const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
               const result = await model.generateContent(prompt);
               const response = await result.response;
               const convertedCode = response.text();
-              const ext = getFileExtension(targetStack, entry.path);
+              const newExt = getFileExtension(targetStack, entry.path);
               const base = path.basename(entry.path, path.extname(entry.path));
-              const newName = base + ext;
+              const newName = base + newExt;
               const cleanedCode = stripCodeBlock(convertedCode);
               archive.append(cleanedCode, { name: newName });
               // Log detailed info only in development mode
