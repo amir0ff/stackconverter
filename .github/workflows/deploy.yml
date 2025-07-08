@@ -1,4 +1,4 @@
-name: 🚀 Deploy to VPS
+name: 🚀 Build & Deploy 
 
 on:
   push:
@@ -111,20 +111,6 @@ jobs:
           pm2 start index.js --name "stackconverter-backend" --user amiroff -f
           pm2 save
           pm2 startup
-
-          echo "📝 Creating .htaccess for API proxy..."
-          cat > /home/amiroff/amiroff.me/stackconverter/.htaccess << 'HTACCESSEOF'
-          RewriteEngine On
-
-          # Proxy API calls to backend
-          RewriteCond %{REQUEST_URI} ^/api/
-          RewriteRule ^api/(.*)$ http://127.0.0.1:5000/$1 [P,L]
-
-          # Handle React Router
-          RewriteCond %{REQUEST_FILENAME} !-f
-          RewriteCond %{REQUEST_FILENAME} !-d
-          RewriteRule . /index.html [L]
-          HTACCESSEOF
 
           echo "✅ Deployment completed successfully!"
           echo "🌐 Frontend: https://amiroff.me/stackconverter/"
