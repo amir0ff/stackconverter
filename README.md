@@ -1,5 +1,6 @@
 # ⚡ Stack Converter
 [![🚀 Deploy to VPS](https://github.com/amir0ff/stackconverter/actions/workflows/deploy.yml/badge.svg)](https://github.com/amir0ff/stackconverter/actions/workflows/deploy.yml)
+![GitHub License](https://img.shields.io/github/license/amir0ff/stackconverter)
 
 A full-stack, AI-powered codebase converter. Instantly convert code between frameworks (e.g., React to Vue) using Google Gemini AI.
 
