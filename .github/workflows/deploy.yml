@@ -37,6 +37,12 @@ jobs:
       - name: 🛠️ Build frontend
         run: pnpm build:frontend
 
+      - name: 🗂️ List workspace files
+        run: |
+          pwd
+          ls -al
+          ls -al backend || true
+
       - name: 🔐 Setup SSH agent
         uses: webfactory/ssh-agent@v0.8.0
         with:
@@ -49,6 +55,7 @@ jobs:
 
       - name: 🚚 Deploy to VPS
         run: |
+          cd $GITHUB_WORKSPACE
           echo "📝 Creating deployment script..."
           cat > deploy.sh << 'EOF'
           #!/bin/bash
