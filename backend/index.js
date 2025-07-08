@@ -16,25 +16,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: function (origin, callback) {
-    const allowedOrigins = ['https://amiroff.me', 'http://localhost:3000'];
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  preflightContinue: false,
-  optionsSuccessStatus: 200
-}));
+// --- CORS: Apply as the very first middleware ---
+const allowedOrigins = ['https://amiroff.me', 'http://localhost:3000'];
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (!origin || allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  }
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
-// Handle all OPTIONS preflight requests globally
-app.options('*', cors());
-
+// Parse JSON bodies for all requests
 app.use(express.json());
 
 // Initialize Gemini client
@@ -67,10 +65,10 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 }, // 20MB limit
 });
 
-// Ensure uploads directory exists
+// Ensure uploads directory exists (move this before multer setup)
 const uploadsDir = path.join(__dirname, 'uploads/');
 if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
+  fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 // Cleanup old files (older than 5 minutes for testing, change to 1 hour for production)
@@ -361,15 +359,21 @@ app.post('/convert', async (req, res) => {
 
 // POST /upload endpoint
 app.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded or wrong file type.' });
+  try {
+    if (!req.file) {
+      res.status(400).json({ error: 'No file uploaded or wrong file type.' });
+      return;
+    }
+    res.json({
+      message: 'File uploaded successfully.',
+      filename: req.file.filename,
+      originalname: req.file.originalname,
+      size: req.file.size,
+    });
+  } catch (err) {
+    console.error('Upload error:', err);
+    res.status(500).json({ error: 'Internal server error during upload.', details: err.message || err.toString() });
   }
-  res.json({
-    message: 'File uploaded successfully.',
-    filename: req.file.filename,
-    originalname: req.file.originalname,
-    size: req.file.size,
-  });
 });
 
 // POST /batch-convert endpoint
