@@ -111,9 +111,6 @@ const StackConverter: React.FC = () => {
               onFileChange={handleFileChange}
               onCodeChange={updateSourceCode}
               isEditable={true}
-              uploadTooltipProps={{ 'data-tooltip-id': 'upload-tooltip', 'data-tooltip-content': 'Upload zip file' }}
-              resetTooltipProps={{ 'data-tooltip-id': 'reset-tooltip', 'data-tooltip-content': 'Reset to example' }}
-              editTooltipProps={{ 'data-tooltip-id': 'edit-tooltip', 'data-tooltip-content': 'Edit code directly' }}
             />
 
             <CodePanel
@@ -125,8 +122,6 @@ const StackConverter: React.FC = () => {
               onCopy={() => {}} // Handled internally in CodePanel
               onDownload={() => {}} // Handled internally in CodePanel
               showEmptyState={true}
-              uploadTooltipProps={{ 'data-tooltip-id': 'upload-tooltip', 'data-tooltip-content': 'Upload zip file' }}
-              resetTooltipProps={{ 'data-tooltip-id': 'reset-tooltip', 'data-tooltip-content': 'Reset to example' }}
             />
           </div>
 

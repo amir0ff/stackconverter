@@ -261,8 +261,15 @@ app.post('/batch-convert', async (req, res) => {
   fs.createReadStream(zipPath)
     .pipe(unzipper.Parse())
     .on('entry', function (entry) {
-      const ext = path.extname(entry.path);
-      if ([".js", ".jsx", ".ts", ".tsx"].includes(ext)) {
+      const ext = path.extname(entry.path).toLowerCase();
+      const allowedExts = [".js", ".jsx", ".ts", ".tsx"];
+      const dangerousExts = [".exe", ".sh", ".bat", ".cmd", ".php", ".py", ".rb", ".dll"];
+      if (dangerousExts.includes(ext)) {
+        // Skip dangerous files
+        entry.autodrain();
+        return;
+      }
+      if (allowedExts.includes(ext)) {
         // Convert code files
         processEntries.push(
           entry.buffer().then(async (codeBuffer) => {
@@ -273,7 +280,6 @@ app.post('/batch-convert', async (req, res) => {
               const result = await model.generateContent(prompt);
               const response = await result.response;
               const convertedCode = response.text();
-              // Get proper file extension for target stack
               const ext = getFileExtension(targetStack, entry.path);
               const base = path.basename(entry.path, path.extname(entry.path));
               const newName = base + ext;
@@ -321,8 +327,7 @@ app.post('/batch-convert', async (req, res) => {
           })
         );
       } else {
-        // Pipe non-code files and directories directly
-        archive.append(entry, { name: entry.path });
+        // Skip non-code files entirely
         entry.autodrain();
       }
     })

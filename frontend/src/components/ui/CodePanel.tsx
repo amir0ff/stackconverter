@@ -119,7 +119,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
             <>
               <input
                 type="file"
-                accept=".zip"
+                accept=".zip,.js,.jsx,.ts,.tsx"
                 ref={fileInputRef}
                 onChange={onFileChange}
                 style={{ display: 'none' }}
@@ -129,7 +129,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                 className="text-gray-400 hover:text-white transition-colors"
                 disabled={isUploading}
                 data-tooltip-id="upload-tooltip"
-                data-tooltip-content="Upload zip or code file"
+                data-tooltip-content="Upload a .zip archive containing your code files (.js, .ts, .tsx, .jsx) for batch conversion. Only code files will be processed."
                 {...uploadTooltipProps}
               >
                 {isUploading ? (
