@@ -36,10 +36,22 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const upload = multer({
   dest: path.join(__dirname, 'uploads/'),
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'application/zip' || file.originalname.endsWith('.zip')) {
+    const allowedTypes = [
+      'application/zip',
+      'application/x-zip-compressed',
+      'application/octet-stream', // some zips
+      'text/javascript',
+      'application/javascript',
+      'text/x-typescript',
+      'application/x-typescript',
+      'text/plain'
+    ];
+    const allowedExts = ['.zip', '.js', '.jsx', '.ts', '.tsx'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedTypes.includes(file.mimetype) || allowedExts.includes(ext)) {
       cb(null, true);
     } else {
-      cb(new Error('Only .zip files are allowed!'));
+      cb(new Error('Only .zip, .js, .jsx, .ts, .tsx files are allowed!'));
     }
   },
   limits: { fileSize: 20 * 1024 * 1024 }, // 20MB limit
@@ -124,6 +136,16 @@ ${sourceCode}
 `;
 }
 
+// Utility: Strip Markdown code block from Gemini API response
+function stripCodeBlock(code) {
+  code = code.trim();
+  // Remove leading triple backticks and optional language
+  code = code.replace(/^```[a-zA-Z]*\n?/, '');
+  // Remove trailing triple backticks
+  code = code.replace(/```$/, '');
+  return code.trim();
+}
+
 // POST /convert endpoint
 app.post('/convert', async (req, res) => {
   const { sourceCode, sourceStack, targetStack, captchaToken } = req.body;
@@ -195,7 +217,8 @@ app.post('/convert', async (req, res) => {
                     console.log(`[Gemini] Conversion completed - Total tokens: ${usage.totalTokenCount}`);
                   }
                 }
-    res.json({ convertedCode });
+    const cleanedCode = stripCodeBlock(convertedCode);
+    res.json({ convertedCode: cleanedCode });
   } catch (error) {
     console.error('Gemini API error:', error);
     if (error && error.response) {
@@ -250,9 +273,14 @@ app.post('/batch-convert', async (req, res) => {
               const result = await model.generateContent(prompt);
               const response = await result.response;
               const convertedCode = response.text();
+              // Get proper file extension for target stack
+              const ext = getFileExtension(targetStack, entry.path);
+              const base = path.basename(entry.path, path.extname(entry.path));
+              const newName = base + ext;
+              const cleanedCode = stripCodeBlock(convertedCode);
+              archive.append(cleanedCode, { name: newName });
               // Log detailed info only in development mode
               if (process.env.NODE_ENV === 'development') {
-                console.log('');
                 console.log('--- Gemini API Call ---');
                 console.log('Prompt length:', prompt.length);
                 console.log('Prompt preview:', prompt.slice(0, 100) + '...');
@@ -287,9 +315,6 @@ app.post('/batch-convert', async (req, res) => {
                   console.log(`[Gemini] Conversion completed - Total tokens: ${usage.totalTokenCount}`);
                 }
               }
-              // Get proper file extension for target stack
-              const newPath = getFileExtension(targetStack, entry.path);
-              archive.append(convertedCode, { name: newPath });
             } catch (err) {
               archive.append('// Conversion failed', { name: entry.path });
             }

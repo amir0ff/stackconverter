@@ -103,15 +103,16 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
             </span>
           )}
         </h3>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           {isEditable && !uploadedFile && (
             <button
               onClick={toggleEditMode}
               className="text-gray-400 hover:text-white transition-colors"
-              title={isEditing ? "View formatted code" : "Edit code"}
+              data-tooltip-id="edit-tooltip"
+              data-tooltip-content={isEditing ? "View formatted code" : "Edit code"}
               {...editTooltipProps}
             >
-              {isEditing ? <Eye className="h-4 w-4" /> : <Edit2 className="h-4 w-4" />}
+              {isEditing ? <Eye className="h-6 w-6" /> : <Edit2 className="h-6 w-6" />}
             </button>
           )}
           {fileInputRef && onFileChange && (
@@ -127,12 +128,14 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                 onClick={onFileUpload}
                 className="text-gray-400 hover:text-white transition-colors"
                 disabled={isUploading}
+                data-tooltip-id="upload-tooltip"
+                data-tooltip-content="Upload zip or code file"
                 {...uploadTooltipProps}
               >
                 {isUploading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Upload className="h-4 w-4" />
+                  <Upload className="h-6 w-6" />
                 )}
               </button>
             </>
@@ -141,9 +144,11 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
             <button 
               onClick={onReset}
               className="text-gray-400 hover:text-white transition-colors"
+              data-tooltip-id="reset-tooltip"
+              data-tooltip-content="Reset to example code"
               {...resetTooltipProps}
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="h-6 w-6" />
             </button>
           )}
           {code && !isConverting && onCopy && (

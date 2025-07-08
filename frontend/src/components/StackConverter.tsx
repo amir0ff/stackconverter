@@ -113,7 +113,7 @@ const StackConverter: React.FC = () => {
               isEditable={true}
               uploadTooltipProps={{ 'data-tooltip-id': 'upload-tooltip', 'data-tooltip-content': 'Upload zip file' }}
               resetTooltipProps={{ 'data-tooltip-id': 'reset-tooltip', 'data-tooltip-content': 'Reset to example' }}
-              editTooltipProps={{ 'data-tooltip-id': 'edit-tooltip', 'data-tooltip-content': 'Click to edit code directly' }}
+              editTooltipProps={{ 'data-tooltip-id': 'edit-tooltip', 'data-tooltip-content': 'Edit code directly' }}
             />
 
             <CodePanel
