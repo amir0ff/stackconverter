@@ -56,7 +56,7 @@ export const useFileUpload = (
     }
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (captchaToken?: string | null) => async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setFileUploadState(prev => ({
@@ -93,6 +93,7 @@ export const useFileUpload = (
 
         const formData = new FormData();
         formData.append('file', file);
+        if (captchaToken) formData.append('captchaToken', captchaToken);
         const response = await fetch(API_ENDPOINTS.upload, {
           method: 'POST',
           body: formData,

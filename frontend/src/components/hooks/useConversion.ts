@@ -44,6 +44,7 @@ export const useConversion = (setAutoDetectedStack?: (stack: string | null) => v
             filename: fileUploadState.uploadedServerFilename,
             sourceStack: conversionState.sourceStack,
             targetStack: conversionState.targetStack,
+            captchaToken,
           }),
         });
         if (!response.ok) throw new Error('Batch conversion failed');
@@ -88,6 +89,21 @@ export const useConversion = (setAutoDetectedStack?: (stack: string | null) => v
       }));
     } catch {
       setError('Error connecting to backend.');
+    }
+  };
+
+  // Update detectStackFromCode to accept and send captchaToken
+  const detectStackFromCode = async (code: string, captchaToken?: string | null): Promise<string | null> => {
+    try {
+      const response = await fetch(API_ENDPOINTS.detectStack, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sourceCode: code, captchaToken }),
+      });
+      const data = await response.json();
+      return response.ok ? data.detectedStack : null;
+    } catch {
+      return null;
     }
   };
 

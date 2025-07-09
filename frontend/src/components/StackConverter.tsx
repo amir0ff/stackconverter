@@ -112,7 +112,7 @@ const StackConverter: React.FC = () => {
               uploadMessage={fileUploadState.uploadMessage}
               isUploading={fileUploadState.isUploading}
               fileInputRef={fileInputRef}
-              onFileChange={handleFileChange}
+              onFileChange={handleFileChange(captchaToken)}
               onCodeChange={updateSourceCode}
               isEditable={true}
               uploadDisabled={import.meta.env.MODE === 'production' && !captchaToken}
