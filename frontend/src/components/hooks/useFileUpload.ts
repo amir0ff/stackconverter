@@ -25,6 +25,7 @@ export const useFileUpload = (
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sourceCode: code, captchaToken }),
+        credentials: 'include',
       });
       const data = await response.json();
       if (response.status === 403 && data.error && data.error.toLowerCase().includes('captcha')) {
@@ -101,6 +102,7 @@ export const useFileUpload = (
         const response = await fetch(API_ENDPOINTS.upload, {
           method: 'POST',
           body: formData,
+          credentials: 'include',
         });
         const data = await response.json();
         if (response.status === 403 && data.error && data.error.toLowerCase().includes('captcha')) {

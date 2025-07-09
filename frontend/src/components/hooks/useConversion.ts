@@ -49,6 +49,7 @@ export const useConversion = (
             targetStack: conversionState.targetStack,
             captchaToken,
           }),
+          credentials: 'include',
         });
         if (response.status === 403) {
           const data = await response.json().catch(() => ({}));
@@ -88,6 +89,7 @@ export const useConversion = (
           targetStack: conversionState.targetStack,
           captchaToken,
         }),
+        credentials: 'include',
       });
       if (response.status === 403) {
         const data = await response.json().catch(() => ({}));
