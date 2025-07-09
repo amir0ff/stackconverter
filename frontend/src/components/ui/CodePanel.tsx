@@ -50,6 +50,8 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   const selectedStack = stackOptions.find(s => s.value === stack);
   const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // Defensive: always use a boolean for showEmptyState
+  const safeShowEmptyState = !!showEmptyState;
   // Disable edit if uploaded file is a zip
   const isZip = uploadedFile && uploadedFile.name.endsWith('.zip');
   const effectiveDisableEdit = disableEdit || isZip;
@@ -123,7 +125,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                   ? 'text-gray-600 cursor-not-allowed'
                   : 'text-gray-400 hover:text-white'
               }`}
-              disabled={effectiveDisableEdit}
+              disabled={!!effectiveDisableEdit}
               data-tooltip-id="edit-tooltip"
               data-tooltip-content={isEditing ? "View formatted code" : "Edit code"}
               {...editTooltipProps}
@@ -281,7 +283,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                 {code}
               </SyntaxHighlighter>
             )}
-            {Boolean(showEmptyState) && !code && (
+            {safeShowEmptyState && !code && (
               <div className="absolute inset-0 h-full w-full flex items-center justify-center text-gray-500 pointer-events-none">
                 <div className="text-center">
                   {emptyStateIcon}
