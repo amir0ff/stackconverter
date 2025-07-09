@@ -17,7 +17,7 @@ module.exports = async function captchaSession(req, res, next) {
   }
 
   // If no valid session, require CAPTCHA
-  const captchaToken = req.body.captchaToken || req.headers['x-captcha-token'];
+  const captchaToken = (req.body && req.body.captchaToken) || req.headers['x-captcha-token'];
   if (process.env.NODE_ENV === 'production') {
     const valid = await verifyCaptcha(captchaToken);
     if (!valid) {
