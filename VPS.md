@@ -10,34 +10,34 @@
 Internet
     ↓
 ┌─────────────────────────────────────┐
-│           VPS (cPanel)             │
+│           VPS (cPanel)              │
 ├─────────────────────────────────────┤
-│  Apache Web Server                 │
-│  ┌─────────────────────────────┐   │
-│  │ amiroff.me/stackconverter  │   │
-│  │ (React App)                 │   │
-│  │ - Serves static files       │   │
-│  │ - Proxies /api/* to backend│   │
-│  └─────────────────────────────┘   │
-│                                   │
-│  ┌─────────────────────────────┐   │
-│  │ api.amiroff.me             │   │
-│  │ (API Proxy)                │   │
-│  │ - Direct API access        │   │
-│  │ - Routes to Node.js        │   │
-│  └─────────────────────────────┘   │
+│  Apache Web Server                  │
+│  ┌─────────────────────────────┐    │
+│  │ amiroff.me/stackconverter   │    │
+│  │ (React App)                 │    │
+│  │ - Serves static files       │    │
+│  │ - Proxies /api/* to backend │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │ api.amiroff.me              │    │
+│  │ (API Proxy)                 │    │
+│  │ - Direct API access         │    │
+│  │ - Routes to Node.js         │    │
+│  └─────────────────────────────┘    │
 └─────────────────────────────────────┘
     ↓
 ┌─────────────────────────────────────┐
-│        Node.js Backend             │
-│        (localhost:5000)            │
-│  ┌─────────────────────────────┐   │
-│  │ Express Server              │   │
-│  │ - /convert                  │   │
-│  │ - /upload                   │   │
-│  │ - /batch-convert            │   │
-│  │ - /detect-stack             │   │
-│  └─────────────────────────────┘   │
+│        Node.js Backend              │
+│        (localhost:5000)             │
+│  ┌─────────────────────────────┐    │
+│  │ Express Server              │    │
+│  │ - /convert                  │    │
+│  │ - /upload                   │    │
+│  │ - /batch-convert            │    │
+│  │ - /detect-stack             │    │
+│  └─────────────────────────────┘    │
 └─────────────────────────────────────┘
 ```
 
