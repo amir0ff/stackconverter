@@ -34,11 +34,9 @@ jobs:
 
       - name: 🧪 Run Backend Tests
         run: |
-          echo "🧪 Running backend test suite..."
-          pnpm test:backend
-          echo "📊 Generating test coverage report..."
-          pnpm test:coverage
-          echo "✅ All backend tests passed!"
+          echo "🧪 Running backend test suite with coverage..."
+          pnpm --filter backend test:coverage
+          echo "✅ All backend tests passed with coverage!"
         continue-on-error: false
 
       - name: 📈 Display Coverage Summary
