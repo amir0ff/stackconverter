@@ -14,6 +14,14 @@ AI-powered codebase converter. Instantly convert code between frameworks (e.g., 
 - 🧠 Powered by Google (`gemini-2.5-flash`)
 - 🚀 Monorepo for easy development and deployment
 
+## Deployment & VPS Configuration
+
+- **Frontend:** Deployed to https://amiroff.me/stackconverter
+- **Backend:** Deployed to https://api.amiroff.me (Node.js/Express, managed by PM2)
+- **API Calls:** Frontend calls backend via HTTPS (reverse proxy with Apache .htaccess)
+- **CI/CD:** Automated with GitHub Actions, rsync, and PM2 for zero-downtime deploys.
+- **VPS & Proxy Setup:** See [VPS.md](./VPS.md) for details on VPS setup, reverse proxy, and deployment configuration.
+
 ## Getting Started
 
 ### 1. Set Up Gemini API Key
@@ -58,17 +66,6 @@ pnpm test
 # With coverage
 pnpm test:coverage
 ```
-
-## Deployment (Production)
-- **Frontend:** Deployed to https://amiroff.me/stackconverter
-- **Backend:** Deployed to https://api.amiroff.me (Node.js/Express, managed by PM2)
-- **API Calls:** Frontend calls backend via HTTPS (reverse proxy with Apache .htaccess)
-- **CI/CD:** Automated with GitHub Actions, rsync, and PM2 for zero-downtime deploys.
-
-## VPS & Deployment Configuration
-
-See [VPS.md](./VPS.md) for details on VPS setup, reverse proxy, and deployment configuration.
-
 
 ## Roadmap
 See [ROADMAP.md](./ROADMAP.md) for planned features and progress.
