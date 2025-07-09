@@ -20,11 +20,13 @@ jobs:
         with:
           node-version: '18'
 
-      - name: 📦 Setup pnpm & Cache
+      - name: 💾 Cache pnpm store
         uses: actions/cache@v4
         with:
           path: ~/.local/share/pnpm/store/v3
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: 📦 Setup pnpm
         run: |
           npm install -g pnpm@8
           pnpm store path
