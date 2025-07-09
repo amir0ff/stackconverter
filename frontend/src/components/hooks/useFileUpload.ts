@@ -18,12 +18,12 @@ export const useFileUpload = (
     }
   };
 
-  const detectStackFromCode = async (code: string): Promise<string | null> => {
+  const detectStackFromCode = async (code: string, captchaToken?: string | null): Promise<string | null> => {
     try {
       const response = await fetch(API_ENDPOINTS.detectStack, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sourceCode: code }),
+        body: JSON.stringify({ sourceCode: code, captchaToken }),
       });
       const data = await response.json();
       return response.ok ? data.detectedStack : null;
@@ -32,7 +32,7 @@ export const useFileUpload = (
     }
   };
 
-  const detectStackFromZip = async (file: File): Promise<string | null> => {
+  const detectStackFromZip = async (file: File, captchaToken?: string | null): Promise<string | null> => {
     try {
       const zip = new JSZip();
       const zipContent = await zip.loadAsync(file);
@@ -50,7 +50,7 @@ export const useFileUpload = (
       // Try to detect from the first code file found
       const firstCodeFile = codeFiles[0];
       const fileContent = await zipContent.files[firstCodeFile].async('string');
-      return await detectStackFromCode(fileContent);
+      return await detectStackFromCode(fileContent, captchaToken);
     } catch {
       return null;
     }
@@ -76,12 +76,12 @@ export const useFileUpload = (
             file.name.endsWith('.ts') || file.name.endsWith('.tsx') ||
             file.name.endsWith('.vue') || file.name.endsWith('.svelte')) {
           const code = await file.text();
-          detectedStack = await detectStackFromCode(code);
+          detectedStack = await detectStackFromCode(code, captchaToken);
         }
         // For zip files, try to detect from zip contents
         else if (file.type === 'application/zip' || file.type === 'application/x-zip-compressed' || 
                  file.name.endsWith('.zip')) {
-          detectedStack = await detectStackFromZip(file);
+          detectedStack = await detectStackFromZip(file, captchaToken);
         }
 
         if (detectedStack && updateSourceStack) {
