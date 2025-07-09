@@ -66,20 +66,3 @@ RewriteRule ^(.*)$ http://127.0.0.1:5000/$1 [P,L]
 # Prevent directory listing
 Options -Indexes
 ```
-
-## Adding New API Endpoints
-
-### Step 1: Update Backend .htaccess
-Add new endpoint to the RewriteCond:
-```apache
-RewriteCond %{REQUEST_URI} ^/(convert|upload|batch-convert|detect-stack|new-endpoint)
-```
-
-### Step 2: Test
-```bash
-# Test direct access
-curl -X POST https://api.amiroff.me/new-endpoint
-
-# Test frontend proxy
-curl -X POST https://amiroff.me/stackconverter/api/new-endpoint
-```
