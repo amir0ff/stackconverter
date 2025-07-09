@@ -281,7 +281,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                 {code}
               </SyntaxHighlighter>
             )}
-            {showEmptyState && !code && (
+            {Boolean(showEmptyState) && !code && (
               <div className="absolute inset-0 h-full w-full flex items-center justify-center text-gray-500 pointer-events-none">
                 <div className="text-center">
                   {emptyStateIcon}
