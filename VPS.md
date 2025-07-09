@@ -46,9 +46,6 @@ Internet
 ### Frontend: `amiroff.me/stackconverter`
 ```apache
 RewriteEngine On
-# Proxy API calls to backend
-RewriteCond %{REQUEST_URI} ^/api/
-RewriteRule ^api/(.*)$ http://127.0.0.1:5000/$1 [P,L]
 # Handle React Router
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
