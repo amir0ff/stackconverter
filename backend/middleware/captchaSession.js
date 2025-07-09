@@ -26,10 +26,11 @@ module.exports = async function captchaSession(req, res, next) {
     // Set session cookie (timestamp)
     res.cookie('captcha_verified', String(now), {
       httpOnly: true,
-      sameSite: 'lax', // Use 'lax' for same-site, 'none' for cross-site with HTTPS
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: CAPTCHA_SESSION_DURATION,
       secure: process.env.NODE_ENV === 'production',
       path: '/',
+      domain: process.env.NODE_ENV === 'production' ? '.amiroff.me' : undefined,
     });
   }
   next();

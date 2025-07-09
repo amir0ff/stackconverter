@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
+const cookieParser = require('cookie-parser');
 const { corsMiddleware } = require('./middleware/cors');
 const { errorHandler } = require('./middleware/errorHandler');
 const detectStackRoute = require('./routes/detectStack');
@@ -17,6 +18,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(corsMiddleware);
+app.use(cookieParser());
 app.use((req, res, next) => {
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);
