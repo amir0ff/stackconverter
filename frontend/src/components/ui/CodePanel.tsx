@@ -5,7 +5,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { CodePanelProps } from '../types';
-import { stackOptions, stackToLanguage } from '../constants';
+import { stackOptions } from '../constants';
 
 interface CodePanelPropsWithTooltips extends CodePanelProps {
   uploadTooltipProps?: React.HTMLAttributes<HTMLButtonElement>;
