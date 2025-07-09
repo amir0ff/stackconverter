@@ -122,7 +122,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               onClick={toggleEditMode}
               className={`transition-colors ${
                 effectiveDisableEdit
-                  ? 'text-gray-600 cursor-not-allowed'
+                  ? 'text-gray-600 cursor-not-allowed' 
                   : 'text-gray-400 hover:text-white'
               }`}
               disabled={!!effectiveDisableEdit}
@@ -145,8 +145,8 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               <button
                 onClick={onFileUpload}
                 className={`transition-colors ${
-                  isUploading || uploadDisabled
-                    ? 'text-gray-600 cursor-not-allowed'
+                  isUploading || uploadDisabled 
+                    ? 'text-gray-600 cursor-not-allowed' 
                     : 'text-gray-400 hover:text-white'
                 }`}
                 disabled={isUploading || uploadDisabled}
@@ -154,16 +154,16 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                 data-tooltip-content="Upload a .zip archive containing your code files (.js, .ts, .tsx, .jsx) for batch conversion. Only code files will be processed."
                 {...uploadTooltipProps}
               >
-                <Upload className="h-6 w-6" />
+                  <Upload className="h-6 w-6" />
               </button>
             </>
           )}
           {onReset && (
-            <button
+            <button 
               onClick={onReset}
               className={`transition-colors ${
-                disableEdit
-                  ? 'text-gray-600 cursor-not-allowed'
+                disableEdit 
+                  ? 'text-gray-600 cursor-not-allowed' 
                   : 'text-gray-400 hover:text-white'
               }`}
               disabled={disableEdit}
@@ -175,7 +175,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
             </button>
           )}
           {code && !isConverting && onCopy && (
-            <button
+            <button 
               onClick={handleCopyToClipboard}
               className="text-gray-400 hover:text-white transition-colors"
               title="Copy to clipboard"
@@ -194,7 +194,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
           )}
         </div>
       </div>
-
+      
       <div className="relative flex-1 h-full min-h-[20rem]">
         {isConverting ? (
           <div className="p-6 bg-gray-800/30 backdrop-blur-sm rounded-2xl">
@@ -237,27 +237,27 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
             )
           ) : (
             // Otherwise, show batch upload UI (zip)
-            <div className="px-6 py-8 flex flex-col items-center justify-center text-blue-300 text-sm min-h-[20rem]">
-              <Upload className="h-10 w-10 mb-2 text-blue-400" />
-              <div className="mb-2">
-                <strong>Uploaded file:</strong> {uploadedFile.name} ({(uploadedFile.size / 1024).toFixed(1)} KB)
-              </div>
-              <div className="mb-4">Ready for batch conversion.</div>
-              {uploadMessage && (
-                <div className={uploadMessage.includes('success') ? 'text-green-400 mb-2' : 'text-red-400 mb-2'}>
-                  {uploadMessage}
-                </div>
-              )}
-              {onRemoveFile && (
-                <button
-                  onClick={onRemoveFile}
-                  className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors"
-                  disabled={isUploading}
-                >
-                  Remove File
-                </button>
-              )}
+          <div className="px-6 py-8 flex flex-col items-center justify-center text-blue-300 text-sm min-h-[20rem]">
+            <Upload className="h-10 w-10 mb-2 text-blue-400" />
+            <div className="mb-2">
+              <strong>Uploaded file:</strong> {uploadedFile.name} ({(uploadedFile.size / 1024).toFixed(1)} KB)
             </div>
+            <div className="mb-4">Ready for batch conversion.</div>
+            {uploadMessage && (
+              <div className={uploadMessage.includes('success') ? 'text-green-400 mb-2' : 'text-red-400 mb-2'}>
+                {uploadMessage}
+              </div>
+            )}
+            {onRemoveFile && (
+              <button
+                onClick={onRemoveFile}
+                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors"
+                disabled={isUploading}
+              >
+                Remove File
+              </button>
+            )}
+          </div>
           )
         )
         || (
@@ -298,4 +298,4 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   );
 };
 
-export default CodePanel;
+export default CodePanel; 

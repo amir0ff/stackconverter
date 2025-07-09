@@ -46,7 +46,7 @@ function cleanUploadsDir() {
   const uploadsDir = path.join(__dirname, 'uploads');
   fs.readdir(uploadsDir, (err, files) => {
     if (err) {
-      console.error('[uploads cleanup] Failed to read uploads directory:', err);
+      console.error('[Cleanup] Failed to read uploads directory:', err);
       return;
     }
     let deleted = 0;
@@ -56,9 +56,9 @@ function cleanUploadsDir() {
       });
     }
     if (files.length > 0) {
-      console.info(`[uploads cleanup] Deleted ${files.length} file(s) from uploads directory.`);
+      console.info(`[Cleanup] Deleted ${files.length} file(s) from uploads directory.`);
     } else {
-      console.info('[uploads cleanup] No files to delete in uploads directory.');
+      console.info('[Cleanup] No files to delete in uploads directory.');
     }
   });
 }

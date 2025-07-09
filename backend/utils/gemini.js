@@ -51,7 +51,20 @@ ${sourceCode}
 }
 
 function buildDetectionPrompt(sourceCode) {
-  return `Analyze the following code and determine which JavaScript framework it uses. \n\nAvailable frameworks: React, Vue, Angular, Svelte, SolidJS, Preact\n...\nCode to analyze:\n${sourceCode}`;
+  return `
+Analyze the following code and determine which JavaScript framework it uses.
+Available frameworks: React, Vue, Angular, Svelte, SolidJS, Preact.
+
+- If the code contains <template>, <script setup>, defineProps, or other Vue-specific syntax, it is likely Vue.
+- If the code uses JSX, useState, useEffect, or React-specific hooks, it is likely React.
+- If the code uses @Component, Angular decorators, or TypeScript classes, it is likely Angular.
+- If the code uses $:, <script>, or Svelte-specific syntax, it is likely Svelte.
+
+Code to analyze:
+${sourceCode}
+
+Return only the framework name (e.g., 'vue', 'react', etc.).
+`;
 }
 
 function stripCodeBlock(code) {
