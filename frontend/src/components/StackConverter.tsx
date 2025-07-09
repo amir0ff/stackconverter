@@ -88,7 +88,8 @@ const StackConverter: React.FC = () => {
             disabled={
               conversionState.isConverting ||
               conversionState.sourceStack === conversionState.targetStack ||
-              (import.meta.env.MODE === 'production' && !captchaToken)
+              (import.meta.env.MODE === 'production' && !captchaToken) ||
+              fileUploadState.isUploading
             }
             isConverting={conversionState.isConverting}
           />
@@ -114,6 +115,7 @@ const StackConverter: React.FC = () => {
               onFileChange={handleFileChange}
               onCodeChange={updateSourceCode}
               isEditable={true}
+              uploadDisabled={import.meta.env.MODE === 'production' && !captchaToken}
             />
 
             <CodePanel

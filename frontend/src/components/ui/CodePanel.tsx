@@ -13,6 +13,7 @@ interface CodePanelPropsWithTooltips extends CodePanelProps {
   editTooltipProps?: React.HTMLAttributes<HTMLButtonElement>;
   onCodeChange?: (code: string) => void;
   isEditable?: boolean;
+  uploadDisabled?: boolean;
 }
 
 const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
@@ -39,6 +40,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   editTooltipProps = {},
   onCodeChange,
   isEditable = false,
+  uploadDisabled = false,
 }) => {
   const selectedStack = stackOptions.find(s => s.value === stack);
   const [isEditing, setIsEditing] = useState(false);
@@ -127,7 +129,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               <button
                 onClick={onFileUpload}
                 className="text-gray-400 hover:text-white transition-colors"
-                disabled={isUploading}
+                disabled={isUploading || uploadDisabled}
                 data-tooltip-id="upload-tooltip"
                 data-tooltip-content="Upload a .zip archive containing your code files (.js, .ts, .tsx, .jsx) for batch conversion. Only code files will be processed."
                 {...uploadTooltipProps}
@@ -182,6 +184,11 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               baseColor="rgba(30,41,59,0.6)"
               highlightColor="rgba(59,130,246,0.15)"
             />
+          </div>
+        ) : isUploading ? (
+          <div className="px-6 py-8 flex flex-col items-center justify-center text-blue-300 text-sm min-h-[20rem]">
+            <Loader2 className="h-10 w-10 mb-2 text-blue-400 animate-spin" />
+            <div>Uploading file...</div>
           </div>
         ) : uploadedFile ? (
           <div className="px-6 py-8 flex flex-col items-center justify-center text-blue-300 text-sm min-h-[20rem]">
