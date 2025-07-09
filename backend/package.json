@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "clean": "rm -rf node_modules"
   },
   "keywords": [
@@ -30,6 +32,22 @@
     "unzipper": "^0.12.3"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
     "nodemon": "^3.0.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!node_modules/**",
+      "!coverage/**"
+    ],
+    "coverageReporters": ["text", "lcov", "html"],
+    "testPathIgnorePatterns": [
+      "node_modules",
+      "coverage",
+      "__tests__/run-tests.js"
+    ]
   }
 }

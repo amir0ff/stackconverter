@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '18'
 
-      - name: 💾 Cache pnpm store
+      - name: 💾 Restore pnpm cache
         uses: actions/cache@v4
         with:
           path: ~/.local/share/pnpm/store/v3

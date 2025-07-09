@@ -11,7 +11,10 @@
     "build:frontend": "pnpm --filter frontend build",
     "install:all": "pnpm install",
     "clean": "pnpm --recursive run clean",
-    "lint": "pnpm --recursive run lint"
+    "lint": "pnpm --recursive run lint",
+    "test": "pnpm --filter backend test",
+    "test:watch": "pnpm --filter backend test:watch",
+    "test:coverage": "pnpm --filter backend test:coverage"
   },
   "keywords": ["monorepo", "ai", "code-converter", "stack-converter"],
   "author": "",

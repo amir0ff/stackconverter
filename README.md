@@ -13,6 +13,7 @@ AI-powered codebase converter. Instantly convert code between frameworks (e.g., 
 - 🔄 Convert code between major frameworks (React, Vue, Angular, Svelte, SolidJS, Preact)
 - 🧠 Powered by Google (`gemini-2.5-flash`)
 - 🚀 Monorepo for easy development and deployment
+- 🧪 Comprehensive test suite with 45+ tests
 
 ## Getting Started
 
@@ -46,6 +47,18 @@ pnpm lint
 
 - Frontend: [http://localhost:3000](http://localhost:3000)
 - Backend: [http://localhost:5000](http://localhost:5000)
+
+## Testing
+
+See [TESTING.md](./TESTING.md) for comprehensive testing documentation.
+
+```bash
+# Without coverage
+pnpm test
+
+# With coverage
+pnpm test:coverage
+```
 
 ## Deployment (Production)
 - **Frontend:** Deployed to https://amiroff.me/stackconverter
