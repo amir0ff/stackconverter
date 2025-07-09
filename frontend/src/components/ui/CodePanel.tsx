@@ -128,7 +128,11 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               />
               <button
                 onClick={onFileUpload}
-                className="text-gray-400 hover:text-white transition-colors"
+                className={`transition-colors ${
+                  isUploading || uploadDisabled 
+                    ? 'text-gray-600 cursor-not-allowed' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
                 disabled={isUploading || uploadDisabled}
                 data-tooltip-id="upload-tooltip"
                 data-tooltip-content="Upload a .zip archive containing your code files (.js, .ts, .tsx, .jsx) for batch conversion. Only code files will be processed."
