@@ -2,7 +2,7 @@
 
 ## Overview
 
-StackConverter has a focused test suite covering critical backend functionality with 40 tests across 6 test suites. All tests are currently passing.
+StackConverter has a comprehensive test suite covering critical backend functionality with 40 unit tests and 10 integration tests across 7 test suites. All tests are currently passing.
 
 ## Running Tests
 
@@ -23,28 +23,38 @@ pnpm test:backend
 backend/__tests__/
 ├── routes/            # API endpoints
 ├── utils/             # Utility functions
-└── server.test.js     # Server configuration
+├── server.test.js     # Server configuration
+└── integration.test.js # End-to-end workflows
 ```
 
 ## Test Categories
 
-### Core Routes (24 tests)
-- `/convert` - Code conversion between frameworks
-- `/detect-stack` - Automatic framework detection
-- `/upload` - File upload handling
-- `/batch-convert` - Batch file conversion
+### Unit Tests (40 tests)
 
-### Utilities (8 tests)
-- `buildPrompt()` - AI prompt generation for all 20+ stack combinations
-- `buildDetectionPrompt()` - Framework detection prompts
-- `stripCodeBlock()` - Code cleaning with edge cases
-- `verifyCaptcha()` - CAPTCHA verification
+#### Core Routes (24 tests)
+- `/convert` - Code conversion between frameworks (6 tests)
+- `/detect-stack` - Automatic framework detection (8 tests)
+- `/upload` - File upload handling (6 tests)
+- `/batch-convert` - Batch file conversion (4 tests)
 
-### Server (8 tests)
+#### Utilities (6 tests)
+- `buildPrompt()` - AI prompt generation for all 20+ stack combinations (2 tests)
+- `buildDetectionPrompt()` - Framework detection prompts (2 tests)
+- `stripCodeBlock()` - Code cleaning with edge cases (4 tests)
+- `verifyCaptcha()` - CAPTCHA verification (1 test)
+
+#### Server (6 tests)
 - Server startup validation
 - Route mounting verification
 - Basic endpoint functionality
 - 404 error handling
+
+### Integration Tests (10 tests)
+- **Complete Conversion Workflows** - End-to-end React↔Vue conversions (2 tests)
+- **Batch Conversion Workflow** - Batch conversion error handling (1 test)
+- **Error Handling & Edge Cases** - Malformed requests, missing fields, empty code (3 tests)
+- **Cross-Stack Conversion Matrix** - Key framework combinations (2 tests)
+- **Health Check & Server Status** - Server health and 404 handling (2 tests)
 
 ## Test Configuration
 
