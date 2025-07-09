@@ -20,28 +20,27 @@ jobs:
         with:
           node-version: '18'
 
-      - name: 📦 Setup pnpm
-        run: |
-          npm install -g pnpm@8
-          pnpm store path
-          pnpm install
-        # Cache logic is handled by actions/cache steps above and below
-
-      - name: 💾 Save pnpm cache
+      - name: 📦 Setup pnpm & Cache
         uses: actions/cache@v4
         with:
           path: ~/.local/share/pnpm/store/v3
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+        run: |
+          npm install -g pnpm@8
+          pnpm store path
+          pnpm install
 
       - name: 🏗️ Build Frontend
         run: pnpm build:frontend
         env:
           VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
 
-      - name: 🔑 Setup SSH
+      - name: 🔑 Setup SSH Agent
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: 🔑 Add Known Hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts
