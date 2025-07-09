@@ -7,7 +7,8 @@ export const useFileUpload = (
   setFileUploadState: (state: FileUploadState | ((prev: FileUploadState) => FileUploadState)) => void,
   setError: (error: string | null) => void,
   updateSourceStack?: (stack: string) => void,
-  setAutoDetectedStack?: (stack: string | null) => void
+  setAutoDetectedStack?: (stack: string | null) => void,
+  setCaptchaToken?: (token: string | null) => void
 ) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -26,6 +27,9 @@ export const useFileUpload = (
         body: JSON.stringify({ sourceCode: code, captchaToken }),
       });
       const data = await response.json();
+      if (response.status === 403 && data.error && data.error.toLowerCase().includes('captcha')) {
+        setCaptchaToken && setCaptchaToken(null);
+      }
       return response.ok ? data.detectedStack : null;
     } catch {
       return null;
@@ -99,6 +103,9 @@ export const useFileUpload = (
           body: formData,
         });
         const data = await response.json();
+        if (response.status === 403 && data.error && data.error.toLowerCase().includes('captcha')) {
+          setCaptchaToken && setCaptchaToken(null);
+        }
         if (response.ok) {
           setFileUploadState(prev => ({
             ...prev,

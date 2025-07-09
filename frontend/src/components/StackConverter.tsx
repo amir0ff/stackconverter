@@ -26,14 +26,14 @@ const StackConverter: React.FC = () => {
     setError,
     resetCode,
     setFileUploadState,
-  } = useConversion(setAutoDetectedStack);
+  } = useConversion(setAutoDetectedStack, setCaptchaToken);
 
   const {
     fileInputRef,
     handleFileIconClick,
     handleFileChange,
     handleRemoveFile,
-  } = useFileUpload(setFileUploadState, setError, updateSourceStack, setAutoDetectedStack);
+  } = useFileUpload(setFileUploadState, setError, updateSourceStack, setAutoDetectedStack, setCaptchaToken);
 
   const handleSourceStackChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSourceStack = e.target.value;

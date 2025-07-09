@@ -3,7 +3,10 @@ import { ConversionState, FileUploadState } from '../types';
 import { exampleCode } from '../constants';
 import { API_ENDPOINTS } from '../../config';
 
-export const useConversion = (setAutoDetectedStack?: (stack: string | null) => void) => {
+export const useConversion = (
+  setAutoDetectedStack?: (stack: string | null) => void,
+  setCaptchaToken?: (token: string | null) => void
+) => {
   const [conversionState, setConversionState] = useState<ConversionState>({
     sourceCode: exampleCode.react,
     convertedCode: '',
@@ -47,6 +50,12 @@ export const useConversion = (setAutoDetectedStack?: (stack: string | null) => v
             captchaToken,
           }),
         });
+        if (response.status === 403) {
+          const data = await response.json().catch(() => ({}));
+          if (data.error && data.error.toLowerCase().includes('captcha')) {
+            setCaptchaToken && setCaptchaToken(null);
+          }
+        }
         if (!response.ok) throw new Error('Batch conversion failed');
         const blob = await response.blob();
         // Download the zip file
@@ -80,6 +89,12 @@ export const useConversion = (setAutoDetectedStack?: (stack: string | null) => v
           captchaToken,
         }),
       });
+      if (response.status === 403) {
+        const data = await response.json().catch(() => ({}));
+        if (data.error && data.error.toLowerCase().includes('captcha')) {
+          setCaptchaToken && setCaptchaToken(null);
+        }
+      }
       const data = await response.json();
       setConversionState(prev => ({
         ...prev,

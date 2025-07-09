@@ -38,7 +38,7 @@ router.post('/', captchaSession, upload.single('file'), async (req, res) => {
       return;
     }
     res.json({
-      message: 'File uploaded successfully.',
+      message: 'File uploaded successfully!',
       filename: req.file.filename,
       originalname: req.file.originalname,
       size: req.file.size,
