@@ -14,6 +14,7 @@ interface CodePanelPropsWithTooltips extends CodePanelProps {
   onCodeChange?: (code: string) => void;
   isEditable?: boolean;
   uploadDisabled?: boolean;
+  disableEdit?: boolean; // NEW PROP
 }
 
 const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
@@ -41,6 +42,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   onCodeChange,
   isEditable = false,
   uploadDisabled = false,
+  disableEdit = false, // NEW PROP
 }) => {
   const selectedStack = stackOptions.find(s => s.value === stack);
   const [isEditing, setIsEditing] = useState(false);
@@ -109,7 +111,12 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
           {isEditable && !uploadedFile && (
             <button
               onClick={toggleEditMode}
-              className="text-gray-400 hover:text-white transition-colors"
+              className={`transition-colors ${
+                disableEdit 
+                  ? 'text-gray-600 cursor-not-allowed' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+              disabled={disableEdit}
               data-tooltip-id="edit-tooltip"
               data-tooltip-content={isEditing ? "View formatted code" : "Edit code"}
               {...editTooltipProps}

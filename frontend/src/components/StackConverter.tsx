@@ -127,6 +127,7 @@ const StackConverter: React.FC = () => {
               onCodeChange={updateSourceCode}
               isEditable={true}
               uploadDisabled={import.meta.env.MODE === 'production' && !captchaToken || conversionState.isConverting}
+              disableEdit={conversionState.isConverting}
             />
 
             <CodePanel
