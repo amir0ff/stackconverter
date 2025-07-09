@@ -63,6 +63,8 @@ RewriteRule . /index.html [L]
 RewriteEngine On
 RewriteCond %{REQUEST_URI} ^/(convert|upload|batch-convert|detect-stack)
 RewriteRule ^(.*)$ http://127.0.0.1:5000/$1 [P,L]
+# Prevent directory listing
+Options -Indexes
 ```
 
 ## Adding New API Endpoints
