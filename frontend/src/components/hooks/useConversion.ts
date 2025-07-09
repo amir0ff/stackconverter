@@ -37,7 +37,11 @@ export const useConversion = (
       return;
     }
 
-    if (fileUploadState.uploadedFile && fileUploadState.uploadedServerFilename) {
+    if (
+      fileUploadState.uploadedFile &&
+      fileUploadState.uploadedServerFilename &&
+      fileUploadState.uploadedFile.name.endsWith('.zip')
+    ) {
       // Batch convert: download zip
       try {
         const response = await fetch(API_ENDPOINTS.batchConvert, {
