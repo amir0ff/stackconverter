@@ -42,6 +42,33 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+function cleanUploadsDir() {
+  const uploadsDir = path.join(__dirname, 'uploads');
+  fs.readdir(uploadsDir, (err, files) => {
+    if (err) {
+      console.error('[uploads cleanup] Failed to read uploads directory:', err);
+      return;
+    }
+    let deleted = 0;
+    for (const file of files) {
+      fs.unlink(path.join(uploadsDir, file), (err) => {
+        if (!err) deleted++;
+      });
+    }
+    if (files.length > 0) {
+      console.info(`[uploads cleanup] Deleted ${files.length} file(s) from uploads directory.`);
+    } else {
+      console.info('[uploads cleanup] No files to delete in uploads directory.');
+    }
+  });
+}
+
+// Clean on server start
+cleanUploadsDir();
+
+// Clean every 30 minutes
+setInterval(cleanUploadsDir, 30 * 60 * 1000);
+
 // Mount routes
 app.use('/detect-stack', detectStackRoute);
 app.use('/convert', convertRoute);
