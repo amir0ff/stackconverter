@@ -79,7 +79,7 @@ const StackConverter: React.FC = () => {
             targetStack={conversionState.targetStack}
             onSourceStackChange={handleSourceStackChange}
             onTargetStackChange={handleTargetStackChange}
-            disabled={conversionState.isConverting}
+            disabled={conversionState.isConverting || fileUploadState.isUploading}
             stackOptions={stackOptions}
             autoDetectedStack={autoDetectedStack}
           />
@@ -126,8 +126,8 @@ const StackConverter: React.FC = () => {
               onFileChange={handleFileChangeWithCaptcha}
               onCodeChange={updateSourceCode}
               isEditable={true}
-              uploadDisabled={import.meta.env.MODE === 'production' && !captchaToken || conversionState.isConverting}
-              disableEdit={conversionState.isConverting}
+              uploadDisabled={import.meta.env.MODE === 'production' && !captchaToken || conversionState.isConverting || fileUploadState.isUploading}
+              disableEdit={conversionState.isConverting || fileUploadState.isUploading}
             />
 
             <CodePanel

@@ -33,9 +33,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   isUploading = false,
   fileInputRef,
   onFileChange,
-  showEmptyState = false,
   emptyStateMessage = 'Run conversion to see results',
-  emptyStateIcon = <Code className="h-12 w-12 mx-auto mb-2 opacity-50" />,
   uploadTooltipProps = {},
   resetTooltipProps = {},
   editTooltipProps = {},
@@ -47,6 +45,9 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   const selectedStack = stackOptions.find(s => s.value === stack);
   const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // Disable edit if uploaded file is a zip
+  const isZip = uploadedFile && uploadedFile.name.endsWith('.zip');
+  const effectiveDisableEdit = disableEdit || isZip;
 
   // Auto-resize textarea to fit content
   useEffect(() => {
@@ -108,15 +109,16 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
           )}
         </h3>
         <div className="flex items-center gap-4">
-          {isEditable && !uploadedFile && (
+          {/* Always show edit button, but disable for zip, upload, or conversion */}
+          {isEditable && (
             <button
               onClick={toggleEditMode}
               className={`transition-colors ${
-                disableEdit 
+                effectiveDisableEdit 
                   ? 'text-gray-600 cursor-not-allowed' 
                   : 'text-gray-400 hover:text-white'
               }`}
-              disabled={disableEdit}
+              disabled={effectiveDisableEdit}
               data-tooltip-id="edit-tooltip"
               data-tooltip-content={isEditing ? "View formatted code" : "Edit code"}
               {...editTooltipProps}
@@ -145,11 +147,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                 data-tooltip-content="Upload a .zip archive containing your code files (.js, .ts, .tsx, .jsx) for batch conversion. Only code files will be processed."
                 {...uploadTooltipProps}
               >
-                {isUploading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Upload className="h-6 w-6" />
-                )}
+                <Upload className="h-6 w-6" />
               </button>
             </>
           )}
@@ -206,29 +204,56 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
             <Loader2 className="h-10 w-10 mb-2 text-blue-400 animate-spin" />
             <div>Uploading file...</div>
           </div>
-        ) : uploadedFile ? (
-          <div className="px-6 py-8 flex flex-col items-center justify-center text-blue-300 text-sm min-h-[20rem]">
-            <Upload className="h-10 w-10 mb-2 text-blue-400" />
-            <div className="mb-2">
-              <strong>Uploaded file:</strong> {uploadedFile.name} ({(uploadedFile.size / 1024).toFixed(1)} KB)
-            </div>
-            <div className="mb-4">Ready for batch conversion.</div>
-            {uploadMessage && (
-              <div className={uploadMessage.includes('success') ? 'text-green-400 mb-2' : 'text-red-400 mb-2'}>
-                {uploadMessage}
+        ) : uploadedFile && (
+          // If uploaded file is a code file, allow editing via edit button (default: syntax highlighter)
+          (['js','jsx','ts','tsx','vue','svelte'].some(ext => uploadedFile.name.endsWith('.' + ext))) ? (
+            isEditable && isEditing ? (
+              <div className="p-6 h-full">
+                <textarea
+                  ref={textareaRef}
+                  value={code}
+                  onChange={handleCodeChange}
+                  className="w-full h-full min-h-[20rem] bg-gray-900/50 text-gray-100 font-mono text-sm leading-relaxed p-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
+                  placeholder={`// Enter your ${stack} code here...\n// You can edit this code directly and then convert it to another framework`}
+                  spellCheck={false}
+                />
               </div>
-            )}
-            {onRemoveFile && (
-              <button
-                onClick={onRemoveFile}
-                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors"
-                disabled={isUploading}
+            ) : (
+              <SyntaxHighlighter
+                language={language}
+                style={tomorrow}
+                customStyle={{ minHeight: '20rem', fontSize: 14, borderRadius: '0.75rem', background: 'transparent', padding: 24 }}
+                showLineNumbers
               >
-                Remove File
-              </button>
-            )}
-          </div>
-        ) : (
+                {code}
+              </SyntaxHighlighter>
+            )
+          ) : (
+            // Otherwise, show batch upload UI (zip)
+            <div className="px-6 py-8 flex flex-col items-center justify-center text-blue-300 text-sm min-h-[20rem]">
+              <Upload className="h-10 w-10 mb-2 text-blue-400" />
+              <div className="mb-2">
+                <strong>Uploaded file:</strong> {uploadedFile.name} ({(uploadedFile.size / 1024).toFixed(1)} KB)
+              </div>
+              <div className="mb-4">Ready for batch conversion.</div>
+              {uploadMessage && (
+                <div className={uploadMessage.includes('success') ? 'text-green-400 mb-2' : 'text-red-400 mb-2'}>
+                  {uploadMessage}
+                </div>
+              )}
+              {onRemoveFile && (
+                <button
+                  onClick={onRemoveFile}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors"
+                  disabled={isUploading}
+                >
+                  Remove File
+                </button>
+              )}
+            </div>
+          )
+        )
+        || (
           <>
             {isEditable && isEditing ? (
               <div className="p-6 h-full">
@@ -237,8 +262,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                   value={code}
                   onChange={handleCodeChange}
                   className="w-full h-full min-h-[20rem] bg-gray-900/50 text-gray-100 font-mono text-sm leading-relaxed p-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
-                  placeholder={`// Enter your ${stack} code here...
-// You can edit this code directly and then convert it to another framework`}
+                  placeholder={`// Enter your ${stack} code here...\n// You can edit this code directly and then convert it to another framework`}
                   spellCheck={false}
                 />
               </div>
@@ -252,14 +276,6 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                 {code}
               </SyntaxHighlighter>
             )}
-            {showEmptyState && !code && (
-              <div className="absolute inset-0 h-full w-full flex items-center justify-center text-gray-500 pointer-events-none">
-                <div className="text-center">
-                  {emptyStateIcon}
-                  <p>{emptyStateMessage}</p>
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>
@@ -267,4 +283,4 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   );
 };
 
-export default CodePanel; 
+export default CodePanel;
