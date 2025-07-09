@@ -156,7 +156,12 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
           {onReset && (
             <button 
               onClick={onReset}
-              className="text-gray-400 hover:text-white transition-colors"
+              className={`transition-colors ${
+                disableEdit 
+                  ? 'text-gray-600 cursor-not-allowed' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+              disabled={disableEdit}
               data-tooltip-id="reset-tooltip"
               data-tooltip-content="Reset to example code"
               {...resetTooltipProps}
