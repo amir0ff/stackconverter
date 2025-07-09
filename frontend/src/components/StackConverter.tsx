@@ -54,6 +54,17 @@ const StackConverter: React.FC = () => {
     updateTargetStack(e.target.value);
   };
 
+  // --- Replace onFileChange and onClick handlers to always use latest captchaToken ---
+
+  // Instead of partially applying captchaToken at render, use a callback that fetches the latest value
+  const handleFileChangeWithCaptcha = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFileChange(captchaToken)(e);
+  };
+
+  const handleConvertClick = () => {
+    convertCode(captchaToken);
+  };
+
   return (
     <>
       <Tooltip id="upload-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
@@ -84,7 +95,7 @@ const StackConverter: React.FC = () => {
           )}
 
           <ConvertButton
-            onClick={() => convertCode(captchaToken)}
+            onClick={handleConvertClick}
             disabled={
               conversionState.isConverting ||
               conversionState.sourceStack === conversionState.targetStack ||
@@ -112,7 +123,7 @@ const StackConverter: React.FC = () => {
               uploadMessage={fileUploadState.uploadMessage}
               isUploading={fileUploadState.isUploading}
               fileInputRef={fileInputRef}
-              onFileChange={handleFileChange(captchaToken)}
+              onFileChange={handleFileChangeWithCaptcha}
               onCodeChange={updateSourceCode}
               isEditable={true}
               uploadDisabled={import.meta.env.MODE === 'production' && !captchaToken}
