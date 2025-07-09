@@ -65,5 +65,10 @@ pnpm test:coverage
 - **API Calls:** Frontend calls backend via HTTPS (reverse proxy with Apache .htaccess)
 - **CI/CD:** Automated with GitHub Actions, rsync, and PM2 for zero-downtime deploys.
 
+## VPS & Deployment Configuration
+
+See [VPS.md](./VPS.md) for details on VPS setup, reverse proxy, and deployment configuration.
+
+
 ## Roadmap
 See [ROADMAP.md](./ROADMAP.md) for planned features and progress.
