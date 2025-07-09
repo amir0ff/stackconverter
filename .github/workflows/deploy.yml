@@ -35,27 +35,15 @@ jobs:
       - name: 🧪 Run Backend Tests
         run: |
           echo "🧪 Running backend test suite with coverage..."
-          pnpm --filter backend test:coverage
+          COVERAGE_REPORTERS=text pnpm --filter backend test:coverage
           echo "✅ All backend tests passed with coverage!"
         continue-on-error: false
-
+          
       - name: 📈 Display Coverage Summary
         run: |
           echo "📈 Coverage summary from latest test run:"
-          if [ -f "backend/coverage/lcov-report/index.html" ]; then
-            echo "✅ Coverage report generated successfully"
-          else
-            echo "⚠️ Coverage report not found"
-          fi
-          echo "📊 Check the uploaded coverage artifacts for detailed results"
-
-      - name: 📊 Upload Test Coverage
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: backend-test-coverage
-          path: backend/coverage/
-          retention-days: 30
+          echo "(See above for Jest text summary)"
+          echo "No HTML/LCOV coverage artifacts uploaded in production."
 
       - name: 🏗️ Build Frontend
         run: pnpm build:frontend
