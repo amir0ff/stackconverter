@@ -71,7 +71,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
     const a = document.createElement('a');
     a.href = url;
     // Map stack to file extension for download
-    const stackToExt = {
+    const stackToExt: Record<string, string> = {
       react: 'jsx',
       vue: 'vue',
       angular: 'ts',
