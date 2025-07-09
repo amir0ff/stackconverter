@@ -46,7 +46,6 @@ Internet
 ### Frontend: `amiroff.me/stackconverter`
 ```apache
 RewriteEngine On
-# Handle React Router
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.html [L]
@@ -58,11 +57,9 @@ RewriteRule . /index.html [L]
 
 ### Backend: `api.amiroff.me`
 ```apache
-# Node.js reverse proxy for API endpoints
 RewriteEngine On
 RewriteCond %{REQUEST_URI} ^/(convert|upload|batch-convert|detect-stack)
 RewriteRule ^(.*)$ http://127.0.0.1:5000/$1 [P,L]
-# Prevent directory listing
 Options -Indexes
 ```
 **Description:**
