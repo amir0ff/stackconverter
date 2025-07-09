@@ -44,7 +44,6 @@ Internet
 ## Current .htaccess Files
 
 ### Frontend: `amiroff.me/stackconverter`
-**File**: `/public_html/stackconverter/.htaccess`
 ```apache
 RewriteEngine On
 # Proxy API calls to backend
@@ -57,7 +56,6 @@ RewriteRule . /index.html [L]
 ```
 
 ### Backend: `api.amiroff.me`
-**File**: `/public_html/.htaccess`
 ```apache
 # Node.js reverse proxy for API endpoints
 RewriteEngine On
