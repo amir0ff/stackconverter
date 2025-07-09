@@ -35,14 +35,25 @@ jobs:
       - name: 🧪 Run Backend Tests
         run: |
           echo "🧪 Running backend test suite with coverage..."
-          COVERAGE_REPORTERS=text pnpm --filter backend test:coverage
+          COVERAGE_REPORTERS=lcov pnpm --filter backend test:coverage
           echo "✅ All backend tests passed with coverage!"
         continue-on-error: false
-          
+
+      - name: 📈 Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: backend/coverage/lcov.info
+          flags: backend
+          fail_ci_if_error: true
+        if: success() && hashFiles('backend/coverage/lcov.info') != ''
+
       - name: 📈 Display Coverage Summary
         run: |
           echo "📈 Coverage summary from latest test run:"
-          echo "(See above for Jest text summary)"
+          echo "(See Codecov for full report)"
+          if [ -f "backend/coverage/lcov.info" ]; then
+            tail -n 20 backend/coverage/lcov.info || true
+          fi
           echo "No HTML/LCOV coverage artifacts uploaded in production."
 
       - name: 🏗️ Build Frontend
