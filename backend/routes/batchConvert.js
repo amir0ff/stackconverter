@@ -8,6 +8,16 @@ const { buildPrompt, genAI, stripCodeBlock } = require('../utils/gemini');
 const captchaSession = require('../middleware/captchaSession');
 const router = express.Router();
 
+// Map target stack to file extension
+const stackToExt = {
+  react: '.jsx',
+  vue: '.vue',
+  angular: '.ts',
+  svelte: '.svelte',
+  solid: '.jsx',
+  preact: '.jsx',
+};
+
 router.post('/', captchaSession, async (req, res) => {
   const { filename, sourceStack, targetStack } = req.body;
   if (!filename) {
@@ -50,8 +60,8 @@ router.post('/', captchaSession, async (req, res) => {
               const result = await model.generateContent(prompt);
               const response = await result.response;
               const convertedCode = response.text();
-              const newExt = ext.replace(/\.(js|jsx|ts|tsx|vue|svelte)$/i, `.${targetStack}`);
               const base = path.basename(entry.path, path.extname(entry.path));
+              const newExt = stackToExt[targetStack] || '.txt';
               const newName = base + newExt;
               const cleanedCode = stripCodeBlock(convertedCode);
               archive.append(cleanedCode, { name: newName });

@@ -12,30 +12,20 @@ jobs:
       name: production
 
     steps:
-      - name: 🛎️ Checkout code
+      - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 🏗️ Setup Node.js
+      - name: 🟦 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: 📦 Install pnpm globally
-        run: npm install -g pnpm@8
-
-      - name: Print pnpm store path
-        run: pnpm store path
-
-      - name: 💾 Restore pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.local/share/pnpm/store/v3
-          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-store-${{ runner.os }}-
-
-      - name: 📥 Install dependencies
-        run: pnpm install
+      - name: 📦 Setup pnpm
+        run: |
+          npm install -g pnpm@8
+          pnpm store path
+          pnpm install
+        # Cache logic is handled by actions/cache steps above and below
 
       - name: 💾 Save pnpm cache
         uses: actions/cache@v4
@@ -43,64 +33,42 @@ jobs:
           path: ~/.local/share/pnpm/store/v3
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: 🛠️ Build frontend
+      - name: 🏗️ Build Frontend
         run: pnpm build:frontend
         env:
           VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
 
-      - name: 🗂️ List workspace files
-        run: |
-          pwd
-          ls -al
-          ls -al backend || true
-          ls -al backend/.* || true
-          ls -al frontend/dist || true
-
-      - name: 🔐 Setup SSH agent
+      - name: 🔑 Setup SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: 🗝️ Add server to known hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts
 
-      - name: 📤 Copy backend to VPS
+      - name: 🚀 Deploy
         run: |
           rsync -avz --exclude 'node_modules' -e "ssh -o StrictHostKeyChecking=no" backend/ root@${{ secrets.VPS_IP }}:/home/amiroff/stackconverter-backend/
-
-      - name: 📤 Copy frontend build to VPS
-        run: |
           rsync -avz -e "ssh -o StrictHostKeyChecking=no" frontend/dist/ root@${{ secrets.VPS_IP }}:/home/amiroff/amiroff.me/stackconverter/
-
-      - name: 🚚 Deploy to VPS
-        run: |
           cd $GITHUB_WORKSPACE
           echo "📝 Creating deployment script..."
           cat > deploy.sh << 'EOF'
           #!/bin/bash
           set -e
-
           echo "🔄 Updating system and installing Node.js..."
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt-get install -y nodejs
-
           echo "🔄 Installing PM2..."
           sudo npm install -g pm2
-
           echo "📁 Creating directories..."
           sudo mkdir -p /home/amiroff/stackconverter-backend
           sudo mkdir -p /home/amiroff/amiroff.me/stackconverter
           sudo chown -R amiroff:amiroff /home/amiroff/stackconverter-backend
           sudo chown -R amiroff:amiroff /home/amiroff/amiroff.me/stackconverter
-
           echo "📤 Copying backend files..."
           echo "(skipped: files already copied via rsync)"
-
           echo "📤 Copying frontend build..."
           echo "(skipped: files already copied via rsync)"
-
           echo "🔑 Setting up environment variables..."
           cat > /home/amiroff/stackconverter-backend/.env << 'ENVEOF'
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
@@ -110,29 +78,24 @@ jobs:
           ENVEOF
           sudo chown amiroff:amiroff /home/amiroff/stackconverter-backend/.env
           sudo chmod 600 /home/amiroff/stackconverter-backend/.env
-
           echo "📦 Installing backend dependencies..."
           cd /home/amiroff/stackconverter-backend
           npm install --production
-
           echo "🛑 Stopping all existing PM2 processes (if any)..."
           pm2 stop all || true
           pm2 delete all || true
-
           echo "🚀 Starting backend with PM2..."
           pm2 start index.js --name "stackconverter-backend" --user amiroff -f
           pm2 save
           pm2 startup
-
           echo "✅ Deployment completed successfully!"
           echo "🌐 Frontend: https://amiroff.me/stackconverter/"
           echo "🔧 Backend: http://localhost:5000"
           EOF
-
           chmod +x deploy.sh
           ssh root@${{ secrets.VPS_IP }} 'bash -s' < deploy.sh
 
-      - name: 🔍 Verify deployment
+      - name: ✅ Verify & Summary
         run: |
           echo "🔍 Checking PM2 status and backend health..."
           ssh root@${{ secrets.VPS_IP }} '
@@ -140,9 +103,6 @@ jobs:
             curl -s http://localhost:5000/ || echo "Backend not responding"
             ls -la /home/amiroff/amiroff.me/stackconverter/
           '
-
-      - name: 🎉 Deployment Summary
-        run: |
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.me/stackconverter/"
           echo "✅ Backend: http://localhost:5000"

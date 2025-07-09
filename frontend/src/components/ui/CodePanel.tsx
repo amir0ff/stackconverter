@@ -70,7 +70,16 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Converted.${stackToLanguage[stack] || 'js'}`;
+    // Map stack to file extension for download
+    const stackToExt = {
+      react: 'jsx',
+      vue: 'vue',
+      angular: 'ts',
+      svelte: 'svelte',
+      solid: 'jsx',
+      preact: 'jsx',
+    };
+    a.download = `Converted.${stackToExt[stack] || 'txt'}`;
     document.body.appendChild(a);
     a.click();
     a.remove();
