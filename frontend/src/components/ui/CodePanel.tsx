@@ -15,6 +15,9 @@ interface CodePanelPropsWithTooltips extends CodePanelProps {
   isEditable?: boolean;
   uploadDisabled?: boolean;
   disableEdit?: boolean; // NEW PROP
+  showEmptyState?: boolean;
+  emptyStateMessage?: string;
+  emptyStateIcon?: React.ReactNode;
 }
 
 const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
@@ -33,7 +36,9 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   isUploading = false,
   fileInputRef,
   onFileChange,
+  showEmptyState = false,
   emptyStateMessage = 'Run conversion to see results',
+  emptyStateIcon = <Code className="h-12 w-12 mx-auto mb-2 opacity-50" />,
   uploadTooltipProps = {},
   resetTooltipProps = {},
   editTooltipProps = {},
@@ -114,8 +119,8 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
             <button
               onClick={toggleEditMode}
               className={`transition-colors ${
-                effectiveDisableEdit 
-                  ? 'text-gray-600 cursor-not-allowed' 
+                effectiveDisableEdit
+                  ? 'text-gray-600 cursor-not-allowed'
                   : 'text-gray-400 hover:text-white'
               }`}
               disabled={effectiveDisableEdit}
@@ -138,8 +143,8 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               <button
                 onClick={onFileUpload}
                 className={`transition-colors ${
-                  isUploading || uploadDisabled 
-                    ? 'text-gray-600 cursor-not-allowed' 
+                  isUploading || uploadDisabled
+                    ? 'text-gray-600 cursor-not-allowed'
                     : 'text-gray-400 hover:text-white'
                 }`}
                 disabled={isUploading || uploadDisabled}
@@ -152,11 +157,11 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
             </>
           )}
           {onReset && (
-            <button 
+            <button
               onClick={onReset}
               className={`transition-colors ${
-                disableEdit 
-                  ? 'text-gray-600 cursor-not-allowed' 
+                disableEdit
+                  ? 'text-gray-600 cursor-not-allowed'
                   : 'text-gray-400 hover:text-white'
               }`}
               disabled={disableEdit}
@@ -168,7 +173,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
             </button>
           )}
           {code && !isConverting && onCopy && (
-            <button 
+            <button
               onClick={handleCopyToClipboard}
               className="text-gray-400 hover:text-white transition-colors"
               title="Copy to clipboard"
@@ -187,7 +192,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
           )}
         </div>
       </div>
-      
+
       <div className="relative flex-1 h-full min-h-[20rem]">
         {isConverting ? (
           <div className="p-6 bg-gray-800/30 backdrop-blur-sm rounded-2xl">
@@ -275,6 +280,14 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               >
                 {code}
               </SyntaxHighlighter>
+            )}
+            {showEmptyState && !code && (
+              <div className="absolute inset-0 h-full w-full flex items-center justify-center text-gray-500 pointer-events-none">
+                <div className="text-center">
+                  {emptyStateIcon}
+                  <p>{emptyStateMessage}</p>
+                </div>
+              </div>
             )}
           </>
         )}
