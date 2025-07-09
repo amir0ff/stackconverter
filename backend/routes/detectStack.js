@@ -1,19 +1,13 @@
 // backend/routes/detectStack.js
 const express = require('express');
 const router = express.Router();
-const { verifyCaptcha } = require('../utils/gemini');
 const { buildDetectionPrompt, genAI } = require('../utils/gemini');
+const captchaSession = require('../middleware/captchaSession');
 
-router.post('/', async (req, res) => {
-  const { sourceCode, captchaToken } = req.body;
+router.post('/', captchaSession, async (req, res) => {
+  const { sourceCode } = req.body;
   if (!sourceCode) {
     return res.status(400).json({ error: 'No source code provided.' });
-  }
-  if (process.env.NODE_ENV === 'production') {
-    const valid = await verifyCaptcha(captchaToken);
-    if (!valid) {
-      return res.status(403).json({ error: 'Failed CAPTCHA verification.' });
-    }
   }
   try {
     const prompt = buildDetectionPrompt(sourceCode);

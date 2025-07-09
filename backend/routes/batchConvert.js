@@ -4,19 +4,14 @@ const path = require('path');
 const fs = require('fs');
 const archiver = require('archiver');
 const unzipper = require('unzipper');
-const { verifyCaptcha, buildPrompt, genAI, stripCodeBlock } = require('../utils/gemini');
+const { buildPrompt, genAI, stripCodeBlock } = require('../utils/gemini');
+const captchaSession = require('../middleware/captchaSession');
 const router = express.Router();
 
-router.post('/', async (req, res) => {
-  const { filename, sourceStack, targetStack, captchaToken } = req.body;
+router.post('/', captchaSession, async (req, res) => {
+  const { filename, sourceStack, targetStack } = req.body;
   if (!filename) {
     return res.status(400).json({ error: 'No filename provided.' });
-  }
-  if (process.env.NODE_ENV === 'production') {
-    const valid = await verifyCaptcha(captchaToken);
-    if (!valid) {
-      return res.status(403).json({ error: 'Failed CAPTCHA verification.' });
-    }
   }
   const zipPath = path.join(__dirname, '../uploads', filename);
   if (!fs.existsSync(zipPath)) {

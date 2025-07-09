@@ -2,7 +2,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { verifyCaptcha } = require('../utils/gemini');
+const captchaSession = require('../middleware/captchaSession');
 const router = express.Router();
 
 const upload = multer({
@@ -31,14 +31,7 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 },
 });
 
-router.post('/', upload.single('file'), async (req, res) => {
-  const captchaToken = req.body.captchaToken || req.headers['x-captcha-token'];
-  if (process.env.NODE_ENV === 'production') {
-    const valid = await verifyCaptcha(captchaToken);
-    if (!valid) {
-      return res.status(403).json({ error: 'Failed CAPTCHA verification.' });
-    }
-  }
+router.post('/', captchaSession, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       res.status(400).json({ error: 'No file uploaded or wrong file type.' });

@@ -1,18 +1,13 @@
 // backend/routes/convert.js
 const express = require('express');
 const router = express.Router();
-const { verifyCaptcha, buildPrompt, genAI, stripCodeBlock } = require('../utils/gemini');
+const { buildPrompt, genAI, stripCodeBlock } = require('../utils/gemini');
+const captchaSession = require('../middleware/captchaSession');
 
-router.post('/', async (req, res) => {
-  const { sourceCode, sourceStack, targetStack, captchaToken } = req.body;
+router.post('/', captchaSession, async (req, res) => {
+  const { sourceCode, sourceStack, targetStack } = req.body;
   if (!sourceCode || !sourceStack || !targetStack) {
     return res.status(400).json({ error: 'Missing required fields.' });
-  }
-  if (process.env.NODE_ENV === 'production') {
-    const valid = await verifyCaptcha(captchaToken);
-    if (!valid) {
-      return res.status(403).json({ error: 'Failed CAPTCHA verification.' });
-    }
   }
   try {
     const prompt = buildPrompt(sourceCode, sourceStack, targetStack);
