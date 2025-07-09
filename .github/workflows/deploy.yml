@@ -39,12 +39,6 @@ jobs:
           echo "✅ All backend tests passed with coverage!"
         continue-on-error: false
 
-      - name: 📈 Display Coverage Summary
-        run: |
-          echo "📈 Coverage summary from latest test run:"
-          echo "(See above for Jest text summary)"
-          echo "No HTML/LCOV coverage artifacts uploaded in production."
-
       - name: 🏗️ Build Frontend
         run: pnpm build:frontend
         env:
