@@ -2,7 +2,7 @@
 
 ## Overview
 - **Frontend**: `amiroff.me/stackconverter` (React SPA)
-- **Backend**: Node.js API on localhost:5000 (proxied via `/stackconverter/api/*`)
+- **Backend**: Node.js API on localhost:5000 (proxied via `amiroff.me/stackconverter/api/*`)
 
 ## Architecture
 
