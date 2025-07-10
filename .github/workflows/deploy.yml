@@ -64,7 +64,13 @@ jobs:
         run: |
           BACKEND_PATH=/home/amiroff/stackconverter-backend
           echo "📤 Copying backend files to $BACKEND_PATH ..."
-          rsync -avz --delete --exclude 'node_modules' --exclude '.git' -e "ssh -o StrictHostKeyChecking=no" backend/ root@${{ secrets.VPS_IP }}:${BACKEND_PATH}/
+          rsync -avz --delete \
+            --exclude 'node_modules' \
+            --exclude '.git' \
+            --exclude '__tests__' \
+            --exclude 'coverage' \
+            --exclude 'lcov-report' \
+            backend/ root@${{ secrets.VPS_IP }}:${BACKEND_PATH}/
           cd $GITHUB_WORKSPACE
           echo "📝 Creating deployment script..."
           cat > deploy.sh << 'EOF'
@@ -72,13 +78,19 @@ jobs:
           set -e
           BACKEND_PATH=/home/amiroff/stackconverter-backend
           FRONTEND_PATH=/home/amiroff/amiroff.me/stackconverter
-          echo "🔄 Updating system and installing Node.js..."
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt-get install -y nodejs
-          echo "🔄 Installing PM2..."
-          sudo npm install -g pm2
-          echo "🔄 Installing pnpm..."
-          sudo npm install -g pnpm@10
+          echo "🔄 Checking and installing Node.js if needed..."
+          if ! command -v node >/dev/null 2>&1; then
+            curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+          fi
+          echo "🔄 Checking and installing PM2 if needed..."
+          if ! command -v pm2 >/dev/null 2>&1; then
+            sudo npm install -g pm2
+          fi
+          echo "🔄 Checking and installing pnpm if needed..."
+          if ! command -v pnpm >/dev/null 2>&1; then
+            sudo npm install -g pnpm@10
+          fi
           echo "📁 Creating and setting permissions for directories..."
           sudo mkdir -p $BACKEND_PATH $FRONTEND_PATH
           sudo chown -R amiroff:amiroff $BACKEND_PATH $FRONTEND_PATH
