@@ -17,13 +17,11 @@ Internet
 │  │ amiroff.me/stackconverter   │    │
 │  │ (React App)                 │    │
 │  │ - Serves static files       │    │
-│  │ - Proxies /api/* to backend │    │
+│  │ - Proxies /stackconverter/api/*  │
+│  │   to backend                │    │
 │  └─────────────────────────────┘    │
-└─────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────┐
-│        Node.js Backend              │
-│        (localhost:5000)             │
+│                                     │
+│  Node.js Backend (localhost:5000)   │
 │  ┌─────────────────────────────┐    │
 │  │ Express Server              │    │
 │  │ - /convert                  │    │
