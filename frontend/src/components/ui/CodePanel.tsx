@@ -18,6 +18,8 @@ interface CodePanelPropsWithTooltips extends CodePanelProps {
   showEmptyState?: boolean;
   emptyStateMessage?: string;
   emptyStateIcon?: React.ReactNode;
+  onExitEdit?: () => void;
+  isDetectingStack?: boolean;
 }
 
 const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
@@ -46,6 +48,8 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   isEditable = false,
   uploadDisabled = false,
   disableEdit = false, // NEW PROP
+  onExitEdit,
+  isDetectingStack = false,
 }) => {
   const selectedStack = stackOptions.find(s => s.value === stack);
   const [isEditing, setIsEditing] = useState(false);
@@ -69,6 +73,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
     const blob = new Blob([code], { type: 'text/plain' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = url;
     // Map stack to file extension for download
     const stackToExt: Record<string, string> = {
@@ -79,11 +84,20 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
       solid: 'jsx',
       preact: 'jsx',
     };
-    a.download = `Converted.${stackToExt[stack] || 'txt'}`;
+    let baseName = 'Converted';
+    if (uploadedFile && !uploadedFile.name.endsWith('.zip')) {
+      const nameParts = uploadedFile.name.split('.');
+      if (nameParts.length > 1) nameParts.pop(); // remove ext
+      baseName = nameParts.join('.') || 'Converted';
+    }
+    const ext = stackToExt[stack] || 'txt';
+    a.download = `${baseName}.${ext}`;
     document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
+    setTimeout(() => {
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    }, 0);
   };
 
   const handleCopyToClipboard = async () => {
@@ -100,6 +114,9 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   };
 
   const toggleEditMode = () => {
+    if (isEditing && onExitEdit) {
+      onExitEdit();
+    }
     setIsEditing(!isEditing);
     // Focus the textarea when entering edit mode
     if (!isEditing && textareaRef.current) {
@@ -187,18 +204,20 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
             <button 
               onClick={handleCopyToClipboard}
               className="text-gray-400 hover:text-white transition-colors"
-              title="Copy to clipboard"
+              data-tooltip-id="copy-tooltip"
+              data-tooltip-content="Copy to clipboard"
             >
-              <Copy className="h-4 w-4" />
+              <Copy className="h-6 w-6" />
             </button>
           )}
-          {code && !isConverting && !uploadedFile && onDownload && (
+          {code && !isConverting && onDownload && (
             <button
               onClick={handleDownload}
               className="text-gray-400 hover:text-white transition-colors"
-              title="Download converted code"
+              data-tooltip-id="download-tooltip"
+              data-tooltip-content="Download converted code"
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-6 w-6" />
             </button>
           )}
         </div>
@@ -215,10 +234,10 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               highlightColor="rgba(59,130,246,0.15)"
             />
           </div>
-        ) : isUploading ? (
+        ) : isUploading || isDetectingStack ? (
           <div className="px-6 py-8 flex flex-col items-center justify-center text-blue-300 text-sm min-h-[20rem]">
             <Loader2 className="h-10 w-10 mb-2 text-blue-400 animate-spin" />
-            <div>Uploading file...</div>
+            <div>{isUploading ? 'Uploading file...' : 'Detecting stack...'}</div>
           </div>
         ) : uploadedFile && (
           // If uploaded file is a code file, allow editing via edit button (default: syntax highlighter)

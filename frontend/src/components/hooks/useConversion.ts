@@ -67,7 +67,13 @@ export const useConversion = (
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `converted-${conversionState.targetStack}.zip`;
+        let zipBaseName = 'converted';
+        if (fileUploadState.uploadedFile && fileUploadState.uploadedFile.name.endsWith('.zip')) {
+          const nameParts = fileUploadState.uploadedFile.name.split('.');
+          if (nameParts.length > 1) nameParts.pop(); // remove ext
+          zipBaseName = nameParts.join('.') || 'converted';
+        }
+        a.download = `${zipBaseName}-${conversionState.targetStack}.zip`;
         document.body.appendChild(a);
         a.click();
         a.remove();

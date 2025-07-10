@@ -8,7 +8,8 @@ export const useFileUpload = (
   setError: (error: string | null) => void,
   updateSourceStack?: (stack: string) => void,
   setAutoDetectedStack?: (stack: string | null) => void,
-  setCaptchaToken?: (token: string | null) => void
+  setCaptchaToken?: (token: string | null) => void,
+  updateSourceCode?: (code: string) => void
 ) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -82,6 +83,9 @@ export const useFileUpload = (
             file.name.endsWith('.vue') || file.name.endsWith('.svelte')) {
           const code = await file.text();
           detectedStack = await detectStackFromCode(code, captchaToken);
+          if (updateSourceCode) {
+            updateSourceCode(code);
+          }
         }
         // For zip files, try to detect from zip contents
         else if (file.type === 'application/zip' || file.type === 'application/x-zip-compressed' || 

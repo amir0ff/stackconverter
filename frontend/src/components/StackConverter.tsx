@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { useConversion } from './hooks/useConversion';
 import { useFileUpload } from './hooks/useFileUpload';
 import { stackOptions, stackToLanguage, exampleCode, features } from './constants';
@@ -10,11 +10,13 @@ import CodePanel from './ui/CodePanel';
 import FeaturesSection from './ui/FeaturesSection';
 import { Tooltip } from 'react-tooltip';
 import { Turnstile } from '@marsidev/react-turnstile';
-import { useState } from 'react';
+import { API_ENDPOINTS } from '../config';
 
 const StackConverter: React.FC = () => {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [autoDetectedStack, setAutoDetectedStack] = useState<string | null>(null);
+  const [isDetectingStack, setIsDetectingStack] = useState(false);
+  const lastDetectedCode = useRef<string | null>(null);
 
   const {
     conversionState,
@@ -33,7 +35,38 @@ const StackConverter: React.FC = () => {
     handleFileIconClick,
     handleFileChange,
     handleRemoveFile,
-  } = useFileUpload(setFileUploadState, setError, updateSourceStack, setAutoDetectedStack, setCaptchaToken);
+  } = useFileUpload(setFileUploadState, setError, updateSourceStack, setAutoDetectedStack, setCaptchaToken, updateSourceCode);
+
+  const detectStackFromCode = async (code: string, captchaToken?: string | null) => {
+    try {
+      const response = await fetch(API_ENDPOINTS.detectStack, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sourceCode: code, captchaToken }),
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (response.status === 403 && data.error && data.error.toLowerCase().includes('captcha')) {
+        setCaptchaToken(null);
+      }
+      return response.ok ? data.detectedStack : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const handleExitEdit = async () => {
+    // Only run detection if code changed since last detection
+    if (lastDetectedCode.current === conversionState.sourceCode) return;
+    setIsDetectingStack(true);
+    const detectedStack = await detectStackFromCode(conversionState.sourceCode, captchaToken);
+    if (detectedStack && detectedStack !== conversionState.sourceStack) {
+      updateSourceStack(detectedStack);
+      setAutoDetectedStack(detectedStack);
+    }
+    lastDetectedCode.current = conversionState.sourceCode;
+    setIsDetectingStack(false);
+  };
 
   const handleSourceStackChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSourceStack = e.target.value;
@@ -70,6 +103,8 @@ const StackConverter: React.FC = () => {
       <Tooltip id="upload-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
       <Tooltip id="reset-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
       <Tooltip id="edit-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
+      <Tooltip id="copy-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
+      <Tooltip id="download-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
         <div className="max-w-7xl mx-auto">
           <Header />
@@ -128,6 +163,8 @@ const StackConverter: React.FC = () => {
               isEditable={true}
               uploadDisabled={import.meta.env.MODE === 'production' && !captchaToken || conversionState.isConverting || fileUploadState.isUploading}
               disableEdit={conversionState.isConverting || fileUploadState.isUploading}
+              onExitEdit={handleExitEdit}
+              isDetectingStack={isDetectingStack}
             />
 
             <CodePanel
