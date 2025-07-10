@@ -67,9 +67,12 @@ jobs:
           
           echo "📤 Copying backend files to $BACKEND_PATH ..."
           rsync -avz --delete --exclude 'node_modules' --exclude '.git' -e "ssh -o StrictHostKeyChecking=no" backend/ root@${{ secrets.VPS_IP }}:${BACKEND_PATH}/
-          echo "📥 Downloading frontend build artifact ..."
-          mkdir -p frontend/dist
-          gh run download --name frontend-dist --dir frontend/dist
+          # Download frontend build artifact using official action
+          - name: 📥 Download Frontend Build Artifact
+            uses: actions/download-artifact@v4
+            with:
+              name: frontend-dist
+              path: frontend/dist
           echo "📤 Copying frontend build to $FRONTEND_PATH ..."
           rsync -avz -e "ssh -o StrictHostKeyChecking=no" frontend/dist/ root@${{ secrets.VPS_IP }}:${FRONTEND_PATH}/
           cd $GITHUB_WORKSPACE
