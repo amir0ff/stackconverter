@@ -77,7 +77,6 @@ jobs:
           #!/bin/bash
           set -e
           BACKEND_PATH=/home/amiroff/stackconverter-backend
-          FRONTEND_PATH=/home/amiroff/amiroff.me/stackconverter
           echo "🔄 Checking and installing Node.js if needed..."
           if ! command -v node >/dev/null 2>&1; then
             curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
@@ -92,8 +91,8 @@ jobs:
             sudo npm install -g pnpm@10
           fi
           echo "📁 Creating and setting permissions for directories..."
-          sudo mkdir -p $BACKEND_PATH $FRONTEND_PATH
-          sudo chown -R amiroff:amiroff $BACKEND_PATH $FRONTEND_PATH
+          sudo mkdir -p $BACKEND_PATH
+          sudo chown -R amiroff:amiroff $BACKEND_PATH
           echo "🔑 Setting up environment variables..."
           cat > $BACKEND_PATH/.env << 'ENVEOF'
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
@@ -114,7 +113,6 @@ jobs:
           pm2 save
           pm2 startup
           echo "✅ Deployment completed successfully!"
-          echo "🌐 Frontend: https://amiroff.me/stackconverter/"
           echo "🔧 Backend: http://localhost:5000"
           EOF
           chmod +x deploy.sh
