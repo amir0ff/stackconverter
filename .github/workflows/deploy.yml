@@ -32,11 +32,12 @@ jobs:
             deps-${{ runner.os }}-
 
       - name: 📦 Install dependencies
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: 10
-          run_install: true
-          install_args: --frozen-lockfile --prefer-offline
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile, --prefer-offline]
 
       - name: 🧪 Run backend tests
         run: |
