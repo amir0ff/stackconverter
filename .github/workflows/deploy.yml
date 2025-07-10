@@ -23,14 +23,19 @@ jobs:
       - name: 💾 Restore pnpm cache
         uses: actions/cache@v4
         with:
-          path: ~/.local/share/pnpm/store/v3
-          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: |
+            ~/.local/share/pnpm/store/v3
+            node_modules
+            */node_modules
+          key: deps-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            deps-${{ runner.os }}-
 
-      - name: 📦 Setup pnpm
+      - name: ⚡ Fast Setup
         run: |
           npm install -g pnpm@10
           pnpm store path
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --prefer-offline
 
       - name: 🧪 Run Backend Tests
         run: |
@@ -44,12 +49,6 @@ jobs:
         env:
           VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
 
-      - name: 📦 Upload Frontend Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: frontend/dist/
-
       - name: 🔑 Setup SSH Agent
         uses: webfactory/ssh-agent@v0.8.0
         with:
@@ -61,6 +60,7 @@ jobs:
           ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts
 
       - name: 🚀 Deploy Backend
+        timeout-minutes: 5
         run: |
           BACKEND_PATH=/home/amiroff/stackconverter-backend
           echo "📤 Copying backend files to $BACKEND_PATH ..."
@@ -118,24 +118,19 @@ jobs:
           chmod +x deploy.sh
           ssh root@${{ secrets.VPS_IP }} 'bash -s' < deploy.sh
 
-      - name: 📥 Download Frontend Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: frontend/dist
-
       - name: 🚀 Deploy Frontend
         run: |
           FRONTEND_PATH=/home/amiroff/amiroff.me/stackconverter
           echo "📤 Copying frontend build to $FRONTEND_PATH ..."
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" frontend/dist/ root@${{ secrets.VPS_IP }}:${FRONTEND_PATH}/
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" \
+            frontend/dist/ root@${{ secrets.VPS_IP }}:${FRONTEND_PATH}/
 
-      - name: ✅ Verify & Summary
+      - name: ✅ Quick Health Check
         run: |
           echo "🔍 Checking PM2 status and backend health..."
           ssh root@${{ secrets.VPS_IP }} '
-            pm2 status
-            curl -s http://localhost:5000/ || echo "Backend not responding"
+            pm2 status | grep stackconverter-backend
+            curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || echo "❌ Backend not responding"
             ls -la /home/amiroff/amiroff.me/stackconverter/
           '
           echo "🎉 Deployment Summary:"
