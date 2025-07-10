@@ -30,7 +30,7 @@ jobs:
         run: |
           npm install -g pnpm@8
           pnpm store path
-          pnpm install
+          pnpm install --prod
 
       - name: 🧪 Run Backend Tests
         run: |
@@ -93,7 +93,7 @@ jobs:
           
           echo "📦 Installing backend dependencies..."
           cd $BACKEND_PATH
-          npm install --production
+          pnpm install --prod
           
           echo "🛑 Stopping all existing PM2 processes (if any)..."
           pm2 stop all || true
