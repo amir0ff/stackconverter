@@ -34,20 +34,23 @@ Internet
 └─────────────────────────────────────┘
 ```
 
-## Current .htaccess Files
+## Current .htaccess Configuration
 
-### Frontend: `amiroff.me/stackconverter`
+### Root: `/public_html/.htaccess`
 ```apache
+# StackConverter Configuration
 RewriteEngine On
+
 # Proxy API calls to backend
 RewriteCond %{REQUEST_URI} ^/stackconverter/api/
 RewriteRule ^stackconverter/api/(.*)$ http://127.0.0.1:5000/$1 [P,L]
-# React Router SPA fallback
+
+# React Router SPA fallback for /stackconverter/
+RewriteCond %{REQUEST_URI} ^/stackconverter/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /stackconverter/index.html [L]
+RewriteRule ^stackconverter/(.*)$ /stackconverter/index.html [L]
 ```
 **Description:**
-- Enables Apache’s rewrite engine.
-- Proxies all `/stackconverter/api/*` requests to your Node.js backend running on the same server (localhost:5000).
-- If the requested path is not a real file or directory, it serves `index.html` for SPA routing.
+- Proxies `/stackconverter/api/*` requests to the Node.js backend on `localhost:5000`
+- Serves `/stackconverter/index.html` for all SPA routes (when not a real file/dir)
