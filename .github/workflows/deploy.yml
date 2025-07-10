@@ -12,10 +12,10 @@ jobs:
       name: production
 
     steps:
-      - name: 📥 Checkout
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🟦 Setup Node.js
+      - name: 🟦 Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
@@ -31,35 +31,35 @@ jobs:
           restore-keys: |
             deps-${{ runner.os }}-
 
-      - name: ⚡ Fast Setup
+      - name: 📦 Install dependencies
         run: |
           npm install -g pnpm@10
           pnpm store path
           pnpm install --frozen-lockfile --prefer-offline
 
-      - name: 🧪 Run Backend Tests
+      - name: 🧪 Run backend tests
         run: |
           echo "🧪 Running backend test suite with coverage..."
           COVERAGE_REPORTERS=text pnpm --filter backend test:coverage
           echo "✅ All backend tests passed with coverage!"
         continue-on-error: false
 
-      - name: 🏗️ Build Frontend
+      - name: 🏗️ Build frontend
         run: pnpm build:frontend
         env:
           VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
 
-      - name: 🔑 Setup SSH Agent
+      - name: 🔑 Set up SSH agent
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: 🔑 Add Known Hosts
+      - name: 🗝️ Add known hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts
 
-      - name: 🚀 Deploy Backend
+      - name: 🚀 Deploy backend
         timeout-minutes: 5
         run: |
           BACKEND_PATH=/home/amiroff/stackconverter-backend
@@ -118,14 +118,14 @@ jobs:
           chmod +x deploy.sh
           ssh root@${{ secrets.VPS_IP }} 'bash -s' < deploy.sh
 
-      - name: 🚀 Deploy Frontend
+      - name: 🚀 Deploy frontend
         run: |
           FRONTEND_PATH=/home/amiroff/amiroff.me/stackconverter
           echo "📤 Copying frontend build to $FRONTEND_PATH ..."
           rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" \
             frontend/dist/ root@${{ secrets.VPS_IP }}:${FRONTEND_PATH}/
 
-      - name: ✅ Quick Health Check
+      - name: ✅ Run health check
         run: |
           echo "🔍 Checking PM2 status and backend health..."
           ssh root@${{ secrets.VPS_IP }} '
