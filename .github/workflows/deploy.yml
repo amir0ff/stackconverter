@@ -28,9 +28,9 @@ jobs:
 
       - name: 📦 Setup pnpm
         run: |
-          npm install -g pnpm@8
+          npm install -g pnpm@10
           pnpm store path
-          pnpm install
+          pnpm install --frozen-lockfile
 
       - name: 🧪 Run Backend Tests
         run: |
@@ -43,6 +43,12 @@ jobs:
         run: pnpm build:frontend
         env:
           VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
+
+      - name: 📦 Upload Frontend Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
 
       - name: 🔑 Setup SSH Agent
         uses: webfactory/ssh-agent@v0.8.0
@@ -60,7 +66,10 @@ jobs:
           FRONTEND_PATH=/home/amiroff/amiroff.me/stackconverter
           
           echo "📤 Copying backend files to $BACKEND_PATH ..."
-          rsync -avz --exclude 'node_modules' -e "ssh -o StrictHostKeyChecking=no" backend/ root@${{ secrets.VPS_IP }}:${BACKEND_PATH}/
+          rsync -avz --delete --exclude 'node_modules' --exclude '.git' -e "ssh -o StrictHostKeyChecking=no" backend/ root@${{ secrets.VPS_IP }}:${BACKEND_PATH}/
+          echo "📥 Downloading frontend build artifact ..."
+          mkdir -p frontend/dist
+          gh run download --name frontend-dist --dir frontend/dist
           echo "📤 Copying frontend build to $FRONTEND_PATH ..."
           rsync -avz -e "ssh -o StrictHostKeyChecking=no" frontend/dist/ root@${{ secrets.VPS_IP }}:${FRONTEND_PATH}/
           cd $GITHUB_WORKSPACE
@@ -77,7 +86,7 @@ jobs:
           echo "🔄 Installing PM2..."
           sudo npm install -g pm2
           echo "🔄 Installing pnpm..."
-          sudo npm install -g pnpm@8
+          sudo npm install -g pnpm@10
           
           echo "📁 Creating and setting permissions for directories..."
           sudo mkdir -p $BACKEND_PATH $FRONTEND_PATH
