@@ -52,9 +52,6 @@ pnpm clean
 pnpm lint
 ```
 
-- Frontend: [http://localhost:3000](http://localhost:3000)
-- Backend: [http://localhost:5000](http://localhost:5000)
-
 ## Testing
 
 See [TESTING.md](./TESTING.md) for comprehensive testing documentation.
