@@ -60,21 +60,11 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts
 
-      - name: 🚀 Deploy
+      - name: 🚀 Deploy Backend
         run: |
           BACKEND_PATH=/home/amiroff/stackconverter-backend
-          FRONTEND_PATH=/home/amiroff/amiroff.me/stackconverter
-          
           echo "📤 Copying backend files to $BACKEND_PATH ..."
           rsync -avz --delete --exclude 'node_modules' --exclude '.git' -e "ssh -o StrictHostKeyChecking=no" backend/ root@${{ secrets.VPS_IP }}:${BACKEND_PATH}/
-          # Download frontend build artifact using official action
-          - name: 📥 Download Frontend Build Artifact
-            uses: actions/download-artifact@v4
-            with:
-              name: frontend-dist
-              path: frontend/dist
-          echo "📤 Copying frontend build to $FRONTEND_PATH ..."
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" frontend/dist/ root@${{ secrets.VPS_IP }}:${FRONTEND_PATH}/
           cd $GITHUB_WORKSPACE
           echo "📝 Creating deployment script..."
           cat > deploy.sh << 'EOF'
@@ -82,7 +72,6 @@ jobs:
           set -e
           BACKEND_PATH=/home/amiroff/stackconverter-backend
           FRONTEND_PATH=/home/amiroff/amiroff.me/stackconverter
-          
           echo "🔄 Updating system and installing Node.js..."
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt-get install -y nodejs
@@ -90,11 +79,9 @@ jobs:
           sudo npm install -g pm2
           echo "🔄 Installing pnpm..."
           sudo npm install -g pnpm@10
-          
           echo "📁 Creating and setting permissions for directories..."
           sudo mkdir -p $BACKEND_PATH $FRONTEND_PATH
           sudo chown -R amiroff:amiroff $BACKEND_PATH $FRONTEND_PATH
-          
           echo "🔑 Setting up environment variables..."
           cat > $BACKEND_PATH/.env << 'ENVEOF'
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
@@ -104,26 +91,34 @@ jobs:
           ENVEOF
           sudo chown amiroff:amiroff $BACKEND_PATH/.env
           sudo chmod 600 $BACKEND_PATH/.env
-          
           echo "📦 Installing backend dependencies..."
           cd $BACKEND_PATH
           pnpm install --prod
-          
           echo "🛑 Stopping all existing PM2 processes (if any)..."
           pm2 stop all || true
           pm2 delete all || true
-          
           echo "🚀 Starting backend with PM2..."
           pm2 start index.js --name "stackconverter-backend" --user amiroff -f
           pm2 save
           pm2 startup
-          
           echo "✅ Deployment completed successfully!"
           echo "🌐 Frontend: https://amiroff.me/stackconverter/"
           echo "🔧 Backend: http://localhost:5000"
           EOF
           chmod +x deploy.sh
           ssh root@${{ secrets.VPS_IP }} 'bash -s' < deploy.sh
+
+      - name: 📥 Download Frontend Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: 🚀 Deploy Frontend
+        run: |
+          FRONTEND_PATH=/home/amiroff/amiroff.me/stackconverter
+          echo "📤 Copying frontend build to $FRONTEND_PATH ..."
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" frontend/dist/ root@${{ secrets.VPS_IP }}:${FRONTEND_PATH}/
 
       - name: ✅ Verify & Summary
         run: |
