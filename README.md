@@ -17,7 +17,7 @@ AI-powered codebase converter. Instantly convert code between frameworks (e.g., 
 ## Deployment & VPS Configuration
 
 - **Frontend:** Deployed to https://amiroff.me/stackconverter
-- **Backend:** Node.js/Express server running on localhost:5000
+- **Backend:** Node.js API on localhost:5000 (proxied via `https://amiroff.me/stackconverter/api/*`)
 - **API Calls:** Frontend calls backend via `/stackconverter/api/*` (proxied through Apache .htaccess)
 - **CI/CD:** Automated with GitHub Actions, rsync, and PM2 for zero-downtime deploys
 - **VPS & Proxy Setup:** See [VPS.md](./VPS.md) for details on VPS setup, reverse proxy, and deployment configuration
