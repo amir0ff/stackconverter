@@ -30,7 +30,7 @@ jobs:
         run: |
           npm install -g pnpm@8
           pnpm store path
-          pnpm install --prod
+          pnpm install
 
       - name: 🧪 Run Backend Tests
         run: |
