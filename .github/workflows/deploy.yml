@@ -64,22 +64,21 @@ jobs:
       - name: 🚀 Deploy backend
         timeout-minutes: 5
         run: |
-          BACKEND_PATH=/home/amiroff/htdocs/amiroff.me/stackconverter/backend
-          echo "📤 Copying backend files to $BACKEND_PATH ..."
-          ssh root@${{ secrets.VPS_IP }} "mkdir -p /home/amiroff/htdocs/amiroff.me/stackconverter/backend"
+          echo "📤 Copying backend files to ${{ secrets.BACKEND_PATH }} ..."
+          ssh root@${{ secrets.VPS_IP }} "mkdir -p ${{ secrets.BACKEND_PATH }}"
           rsync -avz --delete \
             --exclude 'node_modules' \
             --exclude '.git' \
             --exclude '__tests__' \
             --exclude 'coverage' \
             --exclude 'lcov-report' \
-            backend/ root@${{ secrets.VPS_IP }}:${BACKEND_PATH}/
+            backend/ root@${{ secrets.VPS_IP }}:${{ secrets.BACKEND_PATH }}/
           cd $GITHUB_WORKSPACE
           echo "📝 Creating deployment script..."
           cat > deploy.sh << 'EOF'
           #!/bin/bash
           set -e
-          BACKEND_PATH=/home/amiroff/htdocs/amiroff.me/stackconverter/backend
+          BACKEND_PATH=${{ secrets.BACKEND_PATH }}
           echo "🔄 Checking and installing Node.js if needed..."
           if ! command -v node >/dev/null 2>&1; then
             curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
@@ -123,13 +122,12 @@ jobs:
 
       - name: 🚀 Deploy frontend
         run: |
-          FRONTEND_PATH=/home/amiroff/htdocs/amiroff.me/stackconverter/frontend
           echo "📤 Cleaning remote frontend directory..."
-          ssh root@${{ secrets.VPS_IP }} "rm -rf $FRONTEND_PATH/*"
-          echo "📤 Copying frontend build to $FRONTEND_PATH ..."
-          ssh root@${{ secrets.VPS_IP }} "mkdir -p $FRONTEND_PATH"
+          ssh root@${{ secrets.VPS_IP }} "rm -rf ${{ secrets.FRONTEND_PATH }}/*"
+          echo "📤 Copying frontend build to ${{ secrets.FRONTEND_PATH }} ..."
+          ssh root@${{ secrets.VPS_IP }} "mkdir -p ${{ secrets.FRONTEND_PATH }}"
           rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" \
-            frontend/dist/ root@${{ secrets.VPS_IP }}:${FRONTEND_PATH}/
+            frontend/dist/ root@${{ secrets.VPS_IP }}:${{ secrets.FRONTEND_PATH }}/
 
       - name: ✅ Run health check
         run: |
@@ -137,7 +135,8 @@ jobs:
           ssh root@${{ secrets.VPS_IP }} '
             pm2 status | grep stackconverter-backend
             curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || echo "❌ Backend not responding"
-            ls -la /home/amiroff/htdocs/amiroff.me/stackconverter/frontend/
+            ls -la ${{ secrets.FRONTEND_PATH }}
+            ls -la ${{ secrets.BACKEND_PATH }}
           '
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.me/stackconverter/"
