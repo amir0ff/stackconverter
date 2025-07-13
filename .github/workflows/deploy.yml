@@ -66,13 +66,16 @@ jobs:
         run: |
           echo "📤 Copying backend files to ${{ secrets.BACKEND_PATH }} ..."
           ssh root@${{ secrets.VPS_IP }} "mkdir -p ${{ secrets.BACKEND_PATH }}"
-          rsync -avz --delete \
+          START=$(date +%s)
+          rsync -az --delete --info=progress2 \
             --exclude 'node_modules' \
             --exclude '.git' \
             --exclude '__tests__' \
             --exclude 'coverage' \
             --exclude 'lcov-report' \
             backend/ root@${{ secrets.VPS_IP }}:${{ secrets.BACKEND_PATH }}/
+          END=$(date +%s)
+          echo "⏱️ Backend rsync took $((END-START)) seconds."
           cd $GITHUB_WORKSPACE
           echo "📝 Creating deployment script..."
           cat > deploy.sh << 'EOF'
@@ -124,8 +127,11 @@ jobs:
         run: |
           echo "📤 Copying frontend build to ${{ secrets.FRONTEND_PATH }} ..."
           ssh root@${{ secrets.VPS_IP }} "mkdir -p ${{ secrets.FRONTEND_PATH }}"
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" \
+          START=$(date +%s)
+          rsync -az --delete --info=progress2 -e "ssh -o StrictHostKeyChecking=no" \
             frontend/dist/ root@${{ secrets.VPS_IP }}:${{ secrets.FRONTEND_PATH }}/
+          END=$(date +%s)
+          echo "⏱️ Frontend rsync took $((END-START)) seconds."
 
       - name: ✅ Run health check
         run: |
