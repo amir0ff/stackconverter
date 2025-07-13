@@ -66,6 +66,7 @@ jobs:
         run: |
           BACKEND_PATH=/home/amiroff/htdocs/amiroff.me/stackconverter/backend
           echo "📤 Copying backend files to $BACKEND_PATH ..."
+          ssh root@${{ secrets.VPS_IP }} "mkdir -p /home/amiroff/htdocs/amiroff.me/stackconverter/backend"
           rsync -avz --delete \
             --exclude 'node_modules' \
             --exclude '.git' \
@@ -124,6 +125,7 @@ jobs:
         run: |
           FRONTEND_PATH=/home/amiroff/htdocs/amiroff.me/stackconverter/frontend
           echo "📤 Copying frontend build to $FRONTEND_PATH ..."
+          ssh root@${{ secrets.VPS_IP }} "mkdir -p /home/amiroff/htdocs/amiroff.me/stackconverter/frontend"
           rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" \
             frontend/dist/ root@${{ secrets.VPS_IP }}:${FRONTEND_PATH}/
 
