@@ -122,8 +122,6 @@ jobs:
 
       - name: 🚀 Deploy frontend
         run: |
-          echo "📤 Cleaning remote frontend directory..."
-          ssh root@${{ secrets.VPS_IP }} "rm -rf ${{ secrets.FRONTEND_PATH }}/*"
           echo "📤 Copying frontend build to ${{ secrets.FRONTEND_PATH }} ..."
           ssh root@${{ secrets.VPS_IP }} "mkdir -p ${{ secrets.FRONTEND_PATH }}"
           rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" \
