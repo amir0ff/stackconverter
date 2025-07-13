@@ -64,7 +64,7 @@ jobs:
       - name: 🚀 Deploy backend
         timeout-minutes: 5
         run: |
-          BACKEND_PATH=/home/amiroff/htdocs/amiroff.me/backend
+          BACKEND_PATH=/home/amiroff/htdocs/amiroff.me/stackconverter/backend
           echo "📤 Copying backend files to $BACKEND_PATH ..."
           rsync -avz --delete \
             --exclude 'node_modules' \
@@ -78,7 +78,7 @@ jobs:
           cat > deploy.sh << 'EOF'
           #!/bin/bash
           set -e
-          BACKEND_PATH=/home/amiroff/htdocs/amiroff.me/backend
+          BACKEND_PATH=/home/amiroff/htdocs/amiroff.me/stackconverter/backend
           echo "🔄 Checking and installing Node.js if needed..."
           if ! command -v node >/dev/null 2>&1; then
             curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
@@ -122,7 +122,7 @@ jobs:
 
       - name: 🚀 Deploy frontend
         run: |
-          FRONTEND_PATH=/home/amiroff/htdocs/amiroff.me/frontend
+          FRONTEND_PATH=/home/amiroff/htdocs/amiroff.me/stackconverter/frontend
           echo "📤 Copying frontend build to $FRONTEND_PATH ..."
           rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" \
             frontend/dist/ root@${{ secrets.VPS_IP }}:${FRONTEND_PATH}/
@@ -133,15 +133,15 @@ jobs:
           ssh root@${{ secrets.VPS_IP }} '
             pm2 status | grep stackconverter-backend
             curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || echo "❌ Backend not responding"
-            ls -la /home/amiroff/htdocs/amiroff.me/frontend/
+            ls -la /home/amiroff/htdocs/amiroff.me/stackconverter/frontend/
           '
           echo "🎉 Deployment Summary:"
-          echo "✅ Frontend: https://amiroff.me/frontend/"
+          echo "✅ Frontend: https://amiroff.me/stackconverter/"
           echo "✅ Backend: http://localhost:5000"
           echo "✅ PM2 managing backend process"
           echo "✅ Environment variables configured"
           echo ""
           echo "📝 Next steps:"
-          echo "1. Test the application at https://amiroff.me/frontend/"
+          echo "1. Test the application at https://amiroff.me/stackconverter/"
           echo "2. Check PM2 logs: pm2 logs stackconverter-backend"
           echo "3. Monitor with: pm2 monit"
