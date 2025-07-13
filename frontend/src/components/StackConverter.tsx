@@ -17,6 +17,7 @@ const StackConverter: React.FC = () => {
   const [autoDetectedStack, setAutoDetectedStack] = useState<string | null>(null);
   const [isDetectingStack, setIsDetectingStack] = useState(false);
   const lastDetectedCode = useRef<string | null>(null);
+  const editStartCode = useRef<string | null>(null);
 
   const {
     conversionState,
@@ -55,9 +56,17 @@ const StackConverter: React.FC = () => {
     }
   };
 
+  // Pass this to CodePanel to track when edit mode is entered/exited
+  const handleEditModeChange = (isEditing: boolean) => {
+    if (isEditing) {
+      // Entering edit mode: store the code at the start of editing
+      editStartCode.current = conversionState.sourceCode;
+    }
+  };
+
   const handleExitEdit = async () => {
-    // Only run detection if code changed since last detection
-    if (lastDetectedCode.current === conversionState.sourceCode) return;
+    // Only run detection if code changed since last detection AND since entering edit mode
+    if (lastDetectedCode.current === conversionState.sourceCode || editStartCode.current === conversionState.sourceCode) return;
     setIsDetectingStack(true);
     const detectedStack = await detectStackFromCode(conversionState.sourceCode, captchaToken);
     if (detectedStack && detectedStack !== conversionState.sourceStack) {
@@ -162,8 +171,9 @@ const StackConverter: React.FC = () => {
               onCodeChange={updateSourceCode}
               isEditable={true}
               uploadDisabled={import.meta.env.MODE === 'production' && !captchaToken || conversionState.isConverting || fileUploadState.isUploading}
-              disableEdit={conversionState.isConverting || fileUploadState.isUploading}
+              disableEdit={import.meta.env.MODE === 'production' && !captchaToken || conversionState.isConverting || fileUploadState.isUploading}
               onExitEdit={handleExitEdit}
+              onEditModeChange={handleEditModeChange}
               isDetectingStack={isDetectingStack}
             />
 

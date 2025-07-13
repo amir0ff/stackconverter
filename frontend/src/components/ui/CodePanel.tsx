@@ -20,6 +20,7 @@ interface CodePanelPropsWithTooltips extends CodePanelProps {
   emptyStateIcon?: React.ReactNode;
   onExitEdit?: () => void;
   isDetectingStack?: boolean;
+  onEditModeChange?: (isEditing: boolean) => void;
 }
 
 const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
@@ -50,6 +51,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   disableEdit = false, // NEW PROP
   onExitEdit,
   isDetectingStack = false,
+  onEditModeChange,
 }) => {
   const selectedStack = stackOptions.find(s => s.value === stack);
   const [isEditing, setIsEditing] = useState(false);
@@ -67,6 +69,15 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
       textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
     }
   }, [code]);
+
+  // Defensive: ensure code is always a string for rendering
+  const safeCode = typeof code === 'string'
+    ? code
+    : Array.isArray(code)
+      ? (code as any[]).map(item => typeof item === 'string' ? item : JSON.stringify(item, null, 2)).join('\n')
+      : code
+        ? JSON.stringify(code, null, 2)
+        : '';
 
   const handleDownload = () => {
     if (!code) return;
@@ -114,14 +125,18 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   };
 
   const toggleEditMode = () => {
-    if (isEditing && onExitEdit) {
-      onExitEdit();
-    }
-    setIsEditing(!isEditing);
-    // Focus the textarea when entering edit mode
-    if (!isEditing && textareaRef.current) {
+    if (isEditing) {
+      // Exiting edit mode
+      onEditModeChange?.(false);
+      if (onExitEdit) {
+        onExitEdit();
+      }
+    } else {
+      // Entering edit mode
+      onEditModeChange?.(true);
       setTimeout(() => textareaRef.current?.focus(), 100);
     }
+    setIsEditing(!isEditing);
   };
 
   return (
@@ -246,7 +261,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               <div className="p-6 h-full">
                 <textarea
                   ref={textareaRef}
-                  value={code}
+                  value={safeCode}
                   onChange={handleCodeChange}
                   className="w-full h-full min-h-[20rem] bg-gray-900/50 text-gray-100 font-mono text-sm leading-relaxed p-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
                   placeholder={`// Enter your ${stack} code here...\n// You can edit this code directly and then convert it to another framework`}
@@ -260,7 +275,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                 customStyle={{ minHeight: '20rem', fontSize: 14, borderRadius: '0.75rem', background: 'transparent', padding: 24 }}
                 showLineNumbers
               >
-                {code}
+                {safeCode}
               </SyntaxHighlighter>
             )
           ) : (
@@ -294,7 +309,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               <div className="p-6 h-full">
                 <textarea
                   ref={textareaRef}
-                  value={code}
+                  value={safeCode}
                   onChange={handleCodeChange}
                   className="w-full h-full min-h-[20rem] bg-gray-900/50 text-gray-100 font-mono text-sm leading-relaxed p-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
                   placeholder={`// Enter your ${stack} code here...\n// You can edit this code directly and then convert it to another framework`}
@@ -308,7 +323,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                 customStyle={{ minHeight: '20rem', fontSize: 14, borderRadius: '0.75rem', background: 'transparent', padding: 24 }}
                 showLineNumbers
               >
-                {code}
+                {safeCode}
               </SyntaxHighlighter>
             )}
             {safeShowEmptyState && !code && (
