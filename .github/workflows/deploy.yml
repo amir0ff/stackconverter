@@ -92,8 +92,6 @@ jobs:
           curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || echo "❌ Backend not responding"
           ls -la "${{ secrets.FRONTEND_PATH }}"
           ls -la "${{ secrets.BACKEND_PATH }}"
-          echo "🔍 Checking GitHub Actions runner systemd service status..."
-          sudo systemctl status actions.runner.amir0ff-stackconverter.203-161-53-120.service --no-pager
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.me/stackconverter/"
           echo "✅ Backend: http://localhost:5000"
