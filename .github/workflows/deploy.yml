@@ -64,6 +64,7 @@ jobs:
       - name: 🚀 Deploy backend
         timeout-minutes: 5
         run: |
+          STEP_START=$(date +%s)
           echo "📤 Copying backend files to ${{ secrets.BACKEND_PATH }} ..."
           ssh root@${{ secrets.VPS_IP }} "mkdir -p ${{ secrets.BACKEND_PATH }}"
           START=$(date +%s)
@@ -127,7 +128,12 @@ jobs:
           echo "🔧 Backend: http://localhost:5000"
           EOF
           chmod +x deploy.sh
+          STEP_SSH_START=$(date +%s)
           ssh root@${{ secrets.VPS_IP }} 'bash -s' < deploy.sh
+          STEP_SSH_END=$(date +%s)
+          echo "⏱️ SSH deploy.sh block took $((STEP_SSH_END-STEP_SSH_START)) seconds."
+          STEP_END=$(date +%s)
+          echo "⏱️ Total backend deploy step took $((STEP_END-STEP_START)) seconds."
 
       - name: 🚀 Deploy frontend
         run: |
@@ -142,6 +148,7 @@ jobs:
       - name: ✅ Run health check
         run: |
           echo "🔍 Checking PM2 status and backend health..."
+          START_HEALTH_STEP=$(date +%s)
           START_HEALTH=$(date +%s)
           ssh root@${{ secrets.VPS_IP }} '
             START_PM2=$(date +%s)
@@ -162,7 +169,9 @@ jobs:
             echo "⏱️ ls backend took $((END_LS2-START_LS2)) seconds."
           '
           END_HEALTH=$(date +%s)
-          echo "⏱️ Total health check step took $((END_HEALTH-START_HEALTH)) seconds."
+          echo "⏱️ Total health check (inside SSH) took $((END_HEALTH-START_HEALTH)) seconds."
+          END_HEALTH_STEP=$(date +%s)
+          echo "⏱️ Total health check step took $((END_HEALTH_STEP-START_HEALTH_STEP)) seconds."
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.me/stackconverter/"
           echo "✅ Backend: http://localhost:5000"
