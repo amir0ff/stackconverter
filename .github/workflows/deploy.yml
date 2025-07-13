@@ -75,8 +75,6 @@ jobs:
           echo "🚀 Starting backend with PM2..."
           pm2 start index.js --name "stackconverter-backend" -f
           pm2 save
-          sudo chown -R amiroff:amiroff "$BACKEND_PATH"
-          sudo chmod -R u+rwX "$BACKEND_PATH"
           echo "✅ Deployment completed successfully!"
           echo "🔧 Backend: http://localhost:5000"
 
@@ -86,8 +84,6 @@ jobs:
           echo "📤 Copying frontend build to $FRONTEND_PATH ..."
           mkdir -p "$FRONTEND_PATH"
           rsync -az --delete frontend/dist/ "$FRONTEND_PATH/"
-          sudo chown -R amiroff:amiroff "$FRONTEND_PATH"
-          sudo chmod -R u+rwX "$FRONTEND_PATH"
 
       - name: ✅ Run health check
         run: |
