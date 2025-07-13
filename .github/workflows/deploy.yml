@@ -109,14 +109,20 @@ jobs:
           sudo chmod 600 $BACKEND_PATH/.env
           echo "📦 Installing backend dependencies..."
           cd $BACKEND_PATH
+          START_PNPM=$(date +%s)
           pnpm install --prod
+          END_PNPM=$(date +%s)
+          echo "⏱️ pnpm install took $((END_PNPM-START_PNPM)) seconds."
           echo "🛑 Stopping all existing PM2 processes (if any)..."
+          START_PM2=$(date +%s)
           pm2 stop all || true
           pm2 delete all || true
           echo "🚀 Starting backend with PM2..."
           pm2 start index.js --name "stackconverter-backend" --user amiroff -f
           pm2 save
           pm2 startup
+          END_PM2=$(date +%s)
+          echo "⏱️ PM2 restart/startup took $((END_PM2-START_PM2)) seconds."
           echo "✅ Deployment completed successfully!"
           echo "🔧 Backend: http://localhost:5000"
           EOF
@@ -136,12 +142,27 @@ jobs:
       - name: ✅ Run health check
         run: |
           echo "🔍 Checking PM2 status and backend health..."
+          START_HEALTH=$(date +%s)
           ssh root@${{ secrets.VPS_IP }} '
+            START_PM2=$(date +%s)
             pm2 status | grep stackconverter-backend
+            END_PM2=$(date +%s)
+            echo "⏱️ PM2 status check took $((END_PM2-START_PM2)) seconds."
+            START_CURL=$(date +%s)
             curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || echo "❌ Backend not responding"
+            END_CURL=$(date +%s)
+            echo "⏱️ curl health check took $((END_CURL-START_CURL)) seconds."
+            START_LS1=$(date +%s)
             ls -la ${{ secrets.FRONTEND_PATH }}
+            END_LS1=$(date +%s)
+            echo "⏱️ ls frontend took $((END_LS1-START_LS1)) seconds."
+            START_LS2=$(date +%s)
             ls -la ${{ secrets.BACKEND_PATH }}
+            END_LS2=$(date +%s)
+            echo "⏱️ ls backend took $((END_LS2-START_LS2)) seconds."
           '
+          END_HEALTH=$(date +%s)
+          echo "⏱️ Total health check step took $((END_HEALTH-START_HEALTH)) seconds."
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.me/stackconverter/"
           echo "✅ Backend: http://localhost:5000"
