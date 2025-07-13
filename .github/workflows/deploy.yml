@@ -124,8 +124,10 @@ jobs:
       - name: 🚀 Deploy frontend
         run: |
           FRONTEND_PATH=/home/amiroff/htdocs/amiroff.me/stackconverter/frontend
+          echo "📤 Cleaning remote frontend directory..."
+          ssh root@${{ secrets.VPS_IP }} "rm -rf $FRONTEND_PATH/*"
           echo "📤 Copying frontend build to $FRONTEND_PATH ..."
-          ssh root@${{ secrets.VPS_IP }} "mkdir -p /home/amiroff/htdocs/amiroff.me/stackconverter/frontend"
+          ssh root@${{ secrets.VPS_IP }} "mkdir -p $FRONTEND_PATH"
           rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" \
             frontend/dist/ root@${{ secrets.VPS_IP }}:${FRONTEND_PATH}/
 
