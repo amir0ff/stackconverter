@@ -7,7 +7,8 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    # Use self-hosted runner if available, fallback to GitHub-hosted otherwise
+    runs-on: [self-hosted, linux, x64]
     environment:
       name: production
 
@@ -51,127 +52,47 @@ jobs:
         env:
           VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
 
-      - name: 🔑 Set up SSH agent
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: 🗝️ Add known hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts
-
       - name: 🚀 Deploy backend
-        timeout-minutes: 5
         run: |
-          STEP_START=$(date +%s)
-          echo "📤 Copying backend files to ${{ secrets.BACKEND_PATH }} ..."
-          ssh root@${{ secrets.VPS_IP }} "mkdir -p ${{ secrets.BACKEND_PATH }}"
-          START=$(date +%s)
-          rsync -az --delete --info=progress2 \
-            --exclude 'node_modules' \
-            --exclude '.git' \
-            --exclude '__tests__' \
-            --exclude 'coverage' \
-            --exclude 'lcov-report' \
-            backend/ root@${{ secrets.VPS_IP }}:${{ secrets.BACKEND_PATH }}/
-          END=$(date +%s)
-          echo "⏱️ Backend rsync took $((END-START)) seconds."
-          cd $GITHUB_WORKSPACE
-          echo "📝 Creating deployment script..."
-          cat > deploy.sh << 'EOF'
-          #!/bin/bash
-          set -e
-          BACKEND_PATH=${{ secrets.BACKEND_PATH }}
-          echo "🔄 Checking and installing Node.js if needed..."
-          if ! command -v node >/dev/null 2>&1; then
-            curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-          fi
-          echo "🔄 Checking and installing PM2 if needed..."
-          if ! command -v pm2 >/dev/null 2>&1; then
-            sudo npm install -g pm2
-          fi
-          echo "🔄 Checking and installing pnpm if needed..."
-          if ! command -v pnpm >/dev/null 2>&1; then
-            sudo npm install -g pnpm@10
-          fi
-          echo "📁 Creating and setting permissions for directories..."
-          sudo mkdir -p $BACKEND_PATH
-          sudo chown -R amiroff:amiroff $BACKEND_PATH
+          BACKEND_PATH="${{ secrets.BACKEND_PATH }}"
+          echo "📤 Copying backend files to $BACKEND_PATH ..."
+          mkdir -p "$BACKEND_PATH"
+          rsync -az --delete --exclude 'node_modules' --exclude '.git' --exclude '__tests__' --exclude 'coverage' --exclude 'lcov-report' backend/ "$BACKEND_PATH/"
           echo "🔑 Setting up environment variables..."
-          cat > $BACKEND_PATH/.env << 'ENVEOF'
+          cat > "$BACKEND_PATH/.env" << 'ENVEOF'
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           PORT=5000
           NODE_ENV=production
           ENVEOF
-          sudo chown amiroff:amiroff $BACKEND_PATH/.env
-          sudo chmod 600 $BACKEND_PATH/.env
+          chmod 600 "$BACKEND_PATH/.env"
           echo "📦 Installing backend dependencies..."
-          cd $BACKEND_PATH
-          START_PNPM=$(date +%s)
+          cd "$BACKEND_PATH"
           pnpm install --prod
-          END_PNPM=$(date +%s)
-          echo "⏱️ pnpm install took $((END_PNPM-START_PNPM)) seconds."
           echo "🛑 Stopping all existing PM2 processes (if any)..."
-          START_PM2=$(date +%s)
           pm2 stop all || true
           pm2 delete all || true
           echo "🚀 Starting backend with PM2..."
           pm2 start index.js --name "stackconverter-backend" --user amiroff -f
           pm2 save
           pm2 startup
-          END_PM2=$(date +%s)
-          echo "⏱️ PM2 restart/startup took $((END_PM2-START_PM2)) seconds."
           echo "✅ Deployment completed successfully!"
           echo "🔧 Backend: http://localhost:5000"
-          EOF
-          chmod +x deploy.sh
-          STEP_SSH_START=$(date +%s)
-          ssh root@${{ secrets.VPS_IP }} 'bash -s' < deploy.sh
-          STEP_SSH_END=$(date +%s)
-          echo "⏱️ SSH deploy.sh block took $((STEP_SSH_END-STEP_SSH_START)) seconds."
-          STEP_END=$(date +%s)
-          echo "⏱️ Total backend deploy step took $((STEP_END-STEP_START)) seconds."
 
       - name: 🚀 Deploy frontend
         run: |
-          echo "📤 Copying frontend build to ${{ secrets.FRONTEND_PATH }} ..."
-          ssh root@${{ secrets.VPS_IP }} "mkdir -p ${{ secrets.FRONTEND_PATH }}"
-          START=$(date +%s)
-          rsync -az --delete --info=progress2 -e "ssh -o StrictHostKeyChecking=no" \
-            frontend/dist/ root@${{ secrets.VPS_IP }}:${{ secrets.FRONTEND_PATH }}/
-          END=$(date +%s)
-          echo "⏱️ Frontend rsync took $((END-START)) seconds."
+          FRONTEND_PATH="${{ secrets.FRONTEND_PATH }}"
+          echo "📤 Copying frontend build to $FRONTEND_PATH ..."
+          mkdir -p "$FRONTEND_PATH"
+          rsync -az --delete frontend/dist/ "$FRONTEND_PATH/"
 
       - name: ✅ Run health check
         run: |
           echo "🔍 Checking PM2 status and backend health..."
-          START_HEALTH_STEP=$(date +%s)
-          START_HEALTH=$(date +%s)
-          ssh root@${{ secrets.VPS_IP }} '
-            START_PM2=$(date +%s)
-            pm2 status | grep stackconverter-backend
-            END_PM2=$(date +%s)
-            echo "⏱️ PM2 status check took $((END_PM2-START_PM2)) seconds."
-            START_CURL=$(date +%s)
-            curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || echo "❌ Backend not responding"
-            END_CURL=$(date +%s)
-            echo "⏱️ curl health check took $((END_CURL-START_CURL)) seconds."
-            START_LS1=$(date +%s)
-            ls -la ${{ secrets.FRONTEND_PATH }}
-            END_LS1=$(date +%s)
-            echo "⏱️ ls frontend took $((END_LS1-START_LS1)) seconds."
-            START_LS2=$(date +%s)
-            ls -la ${{ secrets.BACKEND_PATH }}
-            END_LS2=$(date +%s)
-            echo "⏱️ ls backend took $((END_LS2-START_LS2)) seconds."
-          '
-          END_HEALTH=$(date +%s)
-          echo "⏱️ Total health check (inside SSH) took $((END_HEALTH-START_HEALTH)) seconds."
-          END_HEALTH_STEP=$(date +%s)
-          echo "⏱️ Total health check step took $((END_HEALTH_STEP-START_HEALTH_STEP)) seconds."
+          pm2 status | grep stackconverter-backend
+          curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || echo "❌ Backend not responding"
+          ls -la "${{ secrets.FRONTEND_PATH }}"
+          ls -la "${{ secrets.BACKEND_PATH }}"
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.me/stackconverter/"
           echo "✅ Backend: http://localhost:5000"
