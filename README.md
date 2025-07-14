@@ -26,32 +26,20 @@ AI-powered codebase converter. Instantly convert code between frameworks (e.g., 
 ### 1. Set Up Gemini API Key
 - In `/backend/.env`:
   ```
-  GEMINI_API_KEY=your-gemini-api-key
+  GEMINI_API_KEY=xxx
   ```
 
-### 2. Run the App
+### 2. Run It
 
 ```bash
 # Install all dependencies
 pnpm install
 
-# Run both apps in parallel
+# Run dev server
 pnpm dev
-# Or run individually:
-pnpm dev:backend
-pnpm dev:frontend
-
-# Build all packages
-pnpm build
-
-# Clean all node_modules
-pnpm clean
-
-# Lint all packages
-pnpm lint
 ```
 
-## Testing
+## Testing It
 
 See [TESTING.md](./TESTING.md) for comprehensive testing documentation.
 
