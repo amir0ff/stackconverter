@@ -4,7 +4,7 @@
 
 AI-powered codebase converter. Instantly convert code between frameworks (e.g., React to Vue) using Google Gemini AI.
 
-## Monorepo Structure
+## Monorepo
 
 - `/frontend` — Vite + React app (UI)
 - `/backend` — Node.js + Express API
