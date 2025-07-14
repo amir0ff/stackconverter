@@ -32,7 +32,7 @@ AI-powered codebase converter. Instantly convert code between frameworks (e.g., 
 ### 2. Run It
 
 ```bash
-# Install all dependencies
+# Install
 pnpm install
 
 # Run dev server
@@ -40,16 +40,7 @@ pnpm dev
 ```
 
 ## Testing It
-
 See [TESTING.md](./TESTING.md) for comprehensive testing documentation.
-
-```bash
-# Without coverage
-pnpm test
-
-# With coverage
-pnpm test:coverage
-```
 
 ## Roadmap
 See [ROADMAP.md](./ROADMAP.md) for planned features and progress.
