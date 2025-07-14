@@ -39,7 +39,7 @@ pnpm install
 pnpm dev
 ```
 
-## Testing It
+## Testing
 See [TESTING.md](./TESTING.md) for comprehensive testing documentation.
 
 ## Roadmap
