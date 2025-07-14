@@ -23,13 +23,15 @@ AI-powered codebase converter. Instantly convert code between frameworks (e.g., 
 
 ## Getting Started
 
-### 1. Set Up Gemini API Key
+### 1. Set Up
 - In `/backend/.env`:
+
+Get a Gemini API Key: [here](https://aistudio.google.com/apikey)
   ```
   GEMINI_API_KEY=xxx
   ```
 
-### 2. Run It
+### 2. Install & Run
 
 ```bash
 # Install
