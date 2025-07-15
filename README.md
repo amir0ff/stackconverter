@@ -4,7 +4,7 @@
 
 AI-powered codebase converter. Instantly convert code between frameworks (e.g., React to Vue) using Google Gemini AI.
 
-## Monorepo Structure
+## Monorepo
 
 - `/frontend` — Vite + React app (UI)
 - `/backend` — Node.js + Express API
@@ -23,45 +23,26 @@ AI-powered codebase converter. Instantly convert code between frameworks (e.g., 
 
 ## Getting Started
 
-### 1. Set Up Gemini API Key
+### 1. Set Up
 - In `/backend/.env`:
+
+Get a Gemini API Key: [here](https://aistudio.google.com/apikey)
   ```
-  GEMINI_API_KEY=your-gemini-api-key
+  GEMINI_API_KEY=xxx
   ```
 
-### 2. Run the App
+### 2. Install & Run
 
 ```bash
-# Install all dependencies
+# Install
 pnpm install
 
-# Run both apps in parallel
+# Run dev server
 pnpm dev
-# Or run individually:
-pnpm dev:backend
-pnpm dev:frontend
-
-# Build all packages
-pnpm build
-
-# Clean all node_modules
-pnpm clean
-
-# Lint all packages
-pnpm lint
 ```
 
 ## Testing
-
 See [TESTING.md](./TESTING.md) for comprehensive testing documentation.
-
-```bash
-# Without coverage
-pnpm test
-
-# With coverage
-pnpm test:coverage
-```
 
 ## Roadmap
 See [ROADMAP.md](./ROADMAP.md) for planned features and progress.
