@@ -1,5 +1,7 @@
 # VPS Configuration
 
+> **Note:** This project structure and documentation assumes you are deploying to your own VPS server with CloudPanel installed for site and service management.
+
 ## Overview
 - **Frontend**: `amiroff.me/stackconverter` (React SPA)
 - **Backend**: Node.js API on localhost:5000 (proxied via `amiroff.me/stackconverter/api/*`)
