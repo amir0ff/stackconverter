@@ -6,3 +6,5 @@ node_modules
 .cursor/
 *.log
 /backend/coverage
+.vscode
+.idea
