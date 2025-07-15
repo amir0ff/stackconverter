@@ -37,8 +37,29 @@
 - ✅ Integration tests: End-to-end conversion workflows
 - ✅ Server tests: Health checks, route mounting, error handling
 - [ ] E2E tests: Simulate real user flows (deferred to future)
-- [x] CI/CD: Automate testing and deployment (now uses GitHub Actions, rsync, PM2, and public API subdomain)
+- [x] CI/CD: Automate testing and deployment (now uses GitHub Actions, rsync, PM2, and public API subdomain; robust, clean, and production-ready)
 - [x] Documentation: Update README and add comprehensive testing docs
+
+## Phase 6: Infrastructure & Migration ✅ (Completed)
+- ✅ VPS hardware upgrade (6GB RAM, 4 cores, 120GB SSD)
+- ✅ Migration from cPanel to CloudPanel (web) and Mailcow (email)
+- ✅ Manual Nginx vhost config for StackConverter (no CloudPanel Proxy UI)
+- ✅ Frontend/backend separation: /stackconverter and /stackconverter-backend
+- ✅ GitHub Actions workflow uses secrets for deploy paths
+- ✅ Both frontend and backend deploys use rsync --delete for clean, robust deployments
+- ✅ No explicit clean commands; deploys are safe and idempotent
+- ✅ Firewall hardening: UFW, nftables, VPN-only admin, Docker integration
+- ✅ All infrastructure and deployment documentation updated to match production
+- ✅ **Migration to self-hosted GitHub Actions runner:**
+    - Self-hosted runner now runs as `amiroff` user on the VPS
+    - All deploy directories (`/home/amiroff/htdocs/amiroff.me/stackconverter*`) are owned by `amiroff`
+    - No more `sudo` or permission errors in CI/CD
+    - Directory permissions must be set once manually; after that, deploys are seamless
+    - Workflow no longer uses `sudo` for file operations or health checks
+    - All deploy and health check steps are now fully automated and robust
+
+## Phase 6: Future Improvements
+- [x] Explore using a self-hosted GitHub Actions runner to reduce CI/CD step overhead and improve deploy speed (now completed)
 
 ## Testing Layer ✅ (Completed)
 - ✅ Comprehensive test suite covering all critical backend functionality

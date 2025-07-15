@@ -3,6 +3,8 @@
 ## Overview
 - **Frontend**: `amiroff.me/stackconverter` (React SPA)
 - **Backend**: Node.js API on localhost:5000 (proxied via `amiroff.me/stackconverter/api/*`)
+- **CI/CD**: Uses a self-hosted GitHub Actions runner installed on the VPS.
+- **Deployment**: Workflow is clean, robust, and fully automated—no more `sudo` hacks or permission errors.
 
 ## Architecture
 
@@ -10,9 +12,9 @@
 Internet
     ↓
 ┌─────────────────────────────────────┐
-│           VPS (cPanel)              │
+│           VPS (CloudPanel)          │
 ├─────────────────────────────────────┤
-│  Apache Web Server                  │
+│  Nginx Web Server                   │
 │  ┌─────────────────────────────┐    │
 │  │ amiroff.me/stackconverter   │    │
 │  │ (React App)                 │    │
@@ -32,23 +34,25 @@ Internet
 └─────────────────────────────────────┘
 ```
 
-## Current .htaccess Configuration
+## Nginx Vhost Configuration for StackConverter
 
-### Root: `/public_html/.htaccess`
-```apache
-# StackConverter Configuration
-RewriteEngine On
+Below is the essential vhost configuration for deploying StackConverter:
 
-# Proxy API calls to backend
-RewriteCond %{REQUEST_URI} ^/stackconverter/api/
-RewriteRule ^stackconverter/api/(.*)$ http://127.0.0.1:5000/$1 [P,L]
+```nginx
+# --- StackConverter API reverse proxy ---
+# Proxies all /stackconverter/api/* requests to the local Node.js backend (port 5000)
+location /stackconverter/api/ {
+    proxy_pass http://127.0.0.1:5000/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
 
-# React Router SPA fallback for /stackconverter/
-RewriteCond %{REQUEST_URI} ^/stackconverter/
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^stackconverter/(.*)$ /stackconverter/index.html [L]
+# --- StackConverter React frontend and assets ---
+# Serves static frontend files and supports SPA routing (fallback to index.html)
+location /stackconverter/ {
+    alias /home/amiroff/htdocs/amiroff.me/stackconverter/;
+    try_files $uri $uri/ index.html;
+}
 ```
-**Description:**
-- Proxies `/stackconverter/api/*` requests to the Node.js backend on `localhost:5000`
-- Serves `/stackconverter/index.html` for all SPA routes (when not a real file/dir)
