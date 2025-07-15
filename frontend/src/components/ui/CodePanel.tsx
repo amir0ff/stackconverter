@@ -313,7 +313,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                   value={safeCode}
                   onChange={handleCodeChange}
                   className="w-full h-full min-h-[20rem] bg-gray-900/50 text-gray-100 font-mono text-sm leading-relaxed p-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
-                  style={{ fontSize: 13 }}
+                  style={{ fontSize: 12 }}
                   placeholder={`// Enter your ${stack} code here...\n// You can edit this code directly and then convert it to another framework`}
                   spellCheck={false}
                 />
