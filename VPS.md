@@ -1,6 +1,6 @@
 # VPS Configuration
 
-> **Note:** This project structure and documentation assumes you are deploying to your own VPS server with CloudPanel installed for site and service management.
+> **Note:** This project structure and documentation assumes you are deploying to your own VPS server with CloudPanel installed.
 
 ## Overview
 - **Frontend**: `amiroff.me/stackconverter` (React SPA)
@@ -36,13 +36,12 @@ Internet
 └─────────────────────────────────────┘
 ```
 
-## Nginx Vhost Configuration for StackConverter
+## Nginx Vhost Configuration
 
 Below is the essential vhost configuration for deploying StackConverter:
 
 ```nginx
 # --- StackConverter API reverse proxy ---
-# Proxies all /stackconverter/api/* requests to the local Node.js backend (port 5000)
 location /stackconverter/api/ {
     proxy_pass http://127.0.0.1:5000/;
     proxy_set_header Host $host;
@@ -50,11 +49,13 @@ location /stackconverter/api/ {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
 }
-
+```
+Proxies all `/stackconverter/api/*` requests to the local Node.js backend (port 5000)
+```nginx
 # --- StackConverter React frontend and assets ---
-# Serves static frontend files and supports SPA routing (fallback to index.html)
 location /stackconverter/ {
     alias /home/amiroff/htdocs/amiroff.me/stackconverter/;
     try_files $uri $uri/ index.html;
 }
 ```
+Serves static frontend files and supports SPA routing (fallback to index.html)

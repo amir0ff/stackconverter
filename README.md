@@ -11,7 +11,7 @@ AI-powered codebase converter. Instantly convert code between frameworks (e.g., 
 
 ## Features
 - 🔄 Convert code between major frameworks (React, Vue, Angular, Svelte, SolidJS, Preact)
-- 🧠 Powered by Google (`gemini-2.5-flash`)
+- 🧠 Powered by Google `gemini-2.5-flash`
 - 🚀 Monorepo for easy development and deployment
 
 ## Deployment & VPS Configuration
@@ -37,7 +37,7 @@ Get a Gemini API Key: [here](https://aistudio.google.com/apikey)
 # Install
 pnpm install
 
-# Run dev server
+# Run both frontend and backend dev servers
 pnpm dev
 ```
 
