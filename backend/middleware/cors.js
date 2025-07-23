@@ -1,5 +1,5 @@
 // backend/middleware/cors.js
-const allowedOrigins = ['https://amiroff.me', 'http://localhost:3000'];
+const allowedOrigins = ['https://amiroff.me', 'http://localhost:3000', 'http://localhost:3001'];
 
 function corsMiddleware(req, res, next) {
   const origin = req.headers.origin;

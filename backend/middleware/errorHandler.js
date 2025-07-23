@@ -1,5 +1,5 @@
 // backend/middleware/errorHandler.js
-const allowedOrigins = ['https://amiroff.me', 'http://localhost:3000'];
+const allowedOrigins = ['https://amiroff.me', 'http://localhost:3000', 'http://localhost:3001'];
 
 function errorHandler(err, req, res, next) {
   const origin = req.headers.origin;
