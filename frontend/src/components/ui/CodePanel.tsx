@@ -70,14 +70,21 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
     }
   }, [code]);
 
+
+  
   // Defensive: ensure code is always a string for rendering
-  const safeCode = typeof code === 'string'
-    ? code
-    : Array.isArray(code)
-      ? (code as any[]).map(item => typeof item === 'string' ? item : JSON.stringify(item, null, 2)).join('\n')
-      : code
-        ? JSON.stringify(code, null, 2)
-        : '';
+  const safeCode = (() => {
+    if (typeof code === 'string') {
+      return code;
+    }
+    if (Array.isArray(code)) {
+      return (code as any[]).map((item: any) => typeof item === 'string' ? item : JSON.stringify(item, null, 2)).join('\n');
+    }
+    if (code && typeof code === 'object') {
+      return JSON.stringify(code, null, 2);
+    }
+    return String(code || '');
+  })();
 
   const handleDownload = () => {
     if (!code) return;

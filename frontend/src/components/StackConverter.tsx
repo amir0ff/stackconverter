@@ -12,6 +12,8 @@ import { Tooltip } from 'react-tooltip';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { API_ENDPOINTS } from '../config';
 
+
+
 const StackConverter: React.FC = () => {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [autoDetectedStack, setAutoDetectedStack] = useState<string | null>(null);
@@ -87,7 +89,9 @@ const StackConverter: React.FC = () => {
       if (newSourceStack === conversionState.targetStack && conversionState.convertedCode) {
         updateSourceCode(conversionState.convertedCode);
       } else {
-        updateSourceCode(exampleCode[newSourceStack] || '');
+        updateSourceCode(typeof exampleCode[newSourceStack] === 'string' 
+          ? exampleCode[newSourceStack] 
+          : '');
       }
     }
   };

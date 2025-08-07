@@ -3,12 +3,34 @@ import { ConversionState, FileUploadState } from '../types';
 import { exampleCode } from '../constants';
 import { API_ENDPOINTS } from '../../config';
 
+
+
 export const useConversion = (
   setAutoDetectedStack?: (stack: string | null) => void,
   setCaptchaToken?: (token: string | null) => void
 ) => {
+  // Ensure we have a valid initial code
+  const initialCode = typeof exampleCode.react === 'string' 
+    ? exampleCode.react 
+    : `import React, { useState } from 'react';
+
+const Counter = ({ initialValue = 0 }) => {
+  const [count, setCount] = useState(initialValue);
+  const increment = () => setCount(count + 1);
+  const decrement = () => setCount(count - 1);
+  return (
+    <div className="counter">
+      <h2>Counter: {count}</h2>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+    </div>
+  );
+};
+
+export default Counter;`;
+
   const [conversionState, setConversionState] = useState<ConversionState>({
-    sourceCode: exampleCode.react,
+    sourceCode: initialCode,
     convertedCode: '',
     isConverting: false,
     sourceStack: 'react',
@@ -138,7 +160,9 @@ export const useConversion = (
   const resetCode = () => {
     setConversionState(prev => ({
       ...prev,
-      sourceCode: exampleCode[prev.sourceStack] || '',
+      sourceCode: typeof exampleCode[prev.sourceStack] === 'string' 
+        ? exampleCode[prev.sourceStack] 
+        : '',
       convertedCode: '',
     }));
     setFileUploadState({
