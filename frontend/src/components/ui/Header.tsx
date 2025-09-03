@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap } from 'lucide-react';
+import { Zap, Github } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
 const Header: React.FC = () => {
@@ -12,7 +12,18 @@ const Header: React.FC = () => {
           </div>
           <h1 className="text-4xl font-bold text-foreground">StackConverter</h1>
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <a
+            href="https://github.com/amir0ff/stackconverter"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-10 w-10 hover:bg-accent hover:text-accent-foreground border border-border bg-card/50 backdrop-blur-sm"
+            aria-label="View on GitHub"
+          >
+            <Github className="h-[1.2rem] w-[1.2rem]" />
+          </a>
+          <ThemeToggle />
+        </div>
       </div>
       <p className="text-muted-foreground text-md">Multi-Framework AI Codebase Converter</p>
       <div className="mt-2 px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-full text-gray-700 dark:text-gray-300 text-sm inline-block border border-gray-300 dark:border-gray-600">
