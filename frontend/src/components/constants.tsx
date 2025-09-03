@@ -193,7 +193,7 @@ export class CounterComponent {
 const Counter = (props) => {
   const [count, setCount] = createSignal(props.initialValue || 0);
   const increment = () => setCount(count() + 1);
-  const decrement = () => setCount(count() - 1);
+  const decrement = () => setCount(count() + 1);
   return (
     <div class="counter">
       <h2>Counter: {count()}</h2>
@@ -230,18 +230,18 @@ export const features = [
     icon: '🧠',
     title: 'Smart Conversion',
     description: 'AI-powered analysis converts components, state management, and lifecycle methods intelligently.',
-    color: 'text-blue-400'
+    color: 'text-gray-600 dark:text-gray-400'
   },
   {
     icon: '⚡',
     title: 'Full Stack Support',
     description: 'Convert entire projects including build configs, routing, state management, and testing.',
-    color: 'text-green-400'
+    color: 'text-gray-600 dark:text-gray-400'
   },
   {
     icon: '🎯',
     title: 'Best Practices',
     description: 'Generated code follows framework conventions and modern best practices out of the box.',
-    color: 'text-purple-400'
+    color: 'text-gray-600 dark:text-gray-400'
   }
 ]; 

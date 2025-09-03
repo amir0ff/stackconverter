@@ -147,18 +147,18 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
   };
 
   return (
-    <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700 flex flex-col h-full">
-      <div className="bg-gray-700/50 px-6 py-4 border-b border-gray-600 flex items-center justify-between">
-        <h3 className="text-white font-semibold text-lg flex items-center gap-2">
+    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm flex flex-col h-full">
+      <div className="bg-muted/50 px-6 py-4 border-b border-border flex items-center justify-between">
+        <h3 className="text-card-foreground font-semibold text-lg flex items-center gap-2">
           {title}
           {!isConverting && (
             <>
-              <span className="text-gray-300">{selectedStack?.icon}</span>
+              <span className="text-muted-foreground">{selectedStack?.icon}</span>
               <span>{selectedStack?.label}</span>
             </>
           )}
           {isEditable && isEditing && (
-            <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">
+            <span className="text-xs bg-slate-600 dark:bg-slate-400 text-white dark:text-slate-900 px-2 py-1 rounded-full">
               Editing
             </span>
           )}
@@ -170,8 +170,8 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               onClick={toggleEditMode}
               className={`transition-colors ${
                 effectiveDisableEdit
-                  ? 'text-gray-600 cursor-not-allowed' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'text-muted-foreground/50 cursor-not-allowed' 
+                  : 'text-muted-foreground hover:text-card-foreground'
               }`}
               disabled={!!effectiveDisableEdit}
               data-tooltip-id="edit-tooltip"
@@ -194,8 +194,8 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                 onClick={onFileUpload}
                 className={`transition-colors ${
                   isUploading || uploadDisabled 
-                    ? 'text-gray-600 cursor-not-allowed' 
-                    : 'text-gray-400 hover:text-white'
+                    ? 'text-muted-foreground/50 cursor-not-allowed' 
+                    : 'text-muted-foreground hover:text-card-foreground'
                 }`}
                 disabled={isUploading || uploadDisabled}
                 data-tooltip-id="upload-tooltip"
@@ -211,8 +211,8 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               onClick={onReset}
               className={`transition-colors ${
                 disableEdit 
-                  ? 'text-gray-600 cursor-not-allowed' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'text-muted-foreground/50 cursor-not-allowed' 
+                  : 'text-muted-foreground hover:text-card-foreground'
               }`}
               disabled={disableEdit}
               data-tooltip-id="reset-tooltip"
@@ -225,7 +225,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
           {code && !isConverting && onCopy && (
             <button 
               onClick={handleCopyToClipboard}
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-card-foreground transition-colors"
               data-tooltip-id="copy-tooltip"
               data-tooltip-content="Copy to clipboard"
             >
@@ -235,7 +235,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
           {code && !isConverting && onDownload && (
             <button
               onClick={handleDownload}
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-card-foreground transition-colors"
               data-tooltip-id="download-tooltip"
               data-tooltip-content="Download converted code"
             >
@@ -247,18 +247,18 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
       
       <div className="relative flex-1 h-full min-h-[20rem]">
         {isConverting ? (
-          <div className="p-6 bg-gray-800/30 backdrop-blur-sm rounded-2xl">
+          <div className="p-6 bg-muted/30">
             <Skeleton
               count={16}
               height={18}
               style={{ marginBottom: 6, borderRadius: 3 }}
-              baseColor="rgba(30,41,59,0.6)"
-              highlightColor="rgba(59,130,246,0.15)"
+              baseColor="hsl(var(--muted))"
+              highlightColor="hsl(var(--accent))"
             />
           </div>
         ) : isUploading || isDetectingStack ? (
-          <div className="px-6 py-8 flex flex-col items-center justify-center text-blue-300 text-sm min-h-[20rem]">
-            <Loader2 className="h-10 w-10 mb-2 text-blue-400 animate-spin" />
+          <div className="px-6 py-8 flex flex-col items-center justify-center text-primary text-sm min-h-[20rem]">
+            <Loader2 className="h-10 w-10 mb-2 text-primary animate-spin" />
             <div>{isUploading ? 'Uploading file...' : 'Detecting stack...'}</div>
           </div>
         ) : uploadedFile && (
@@ -270,7 +270,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                   ref={textareaRef}
                   value={safeCode}
                   onChange={handleCodeChange}
-                  className="w-full h-full min-h-[20rem] bg-gray-900/50 text-gray-100 font-mono text-sm leading-relaxed p-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
+                  className="w-full h-full min-h-[20rem] bg-muted/50 text-card-foreground font-mono text-sm leading-relaxed p-4 rounded-lg border border-border focus:border-ring focus:outline-none resize-none"
                   style={{ fontSize: 14 }}
                   placeholder={`// Enter your ${stack} code here...\n// You can edit this code directly and then convert it to another framework`}
                   spellCheck={false}
@@ -288,21 +288,21 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
             )
           ) : (
             // Otherwise, show batch upload UI (zip)
-          <div className="px-6 py-8 flex flex-col items-center justify-center text-blue-300 text-sm min-h-[20rem]">
-            <Upload className="h-10 w-10 mb-2 text-blue-400" />
+          <div className="px-6 py-8 flex flex-col items-center justify-center text-primary text-sm min-h-[20rem]">
+            <Upload className="h-10 w-10 mb-2 text-primary" />
             <div className="mb-2">
               <strong>Uploaded file:</strong> {uploadedFile.name} ({(uploadedFile.size / 1024).toFixed(1)} KB)
             </div>
             <div className="mb-4">Ready for batch conversion.</div>
             {uploadMessage && (
-              <div className={uploadMessage.includes('success') ? 'text-green-400 mb-2' : 'text-red-400 mb-2'}>
+              <div className={uploadMessage.includes('success') ? 'text-emerald-600 dark:text-emerald-400 mb-2' : 'text-red-600 dark:text-red-400 mb-2'}>
                 {uploadMessage}
               </div>
             )}
             {onRemoveFile && (
               <button
                 onClick={onRemoveFile}
-                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors"
+                className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-4 py-2 rounded transition-colors"
                 disabled={isUploading}
               >
                 Remove File
@@ -319,7 +319,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
                   ref={textareaRef}
                   value={safeCode}
                   onChange={handleCodeChange}
-                  className="w-full h-full min-h-[20rem] bg-gray-900/50 text-gray-100 font-mono text-sm leading-relaxed p-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
+                  className="w-full h-full min-h-[20rem] bg-muted/50 text-card-foreground font-mono text-sm leading-relaxed p-4 rounded-lg border border-border focus:border-ring focus:outline-none resize-none"
                   style={{ fontSize: 12 }}
                   placeholder={`// Enter your ${stack} code here...\n// You can edit this code directly and then convert it to another framework`}
                   spellCheck={false}
@@ -336,7 +336,7 @@ const CodePanel: React.FC<CodePanelPropsWithTooltips> = ({
               </SyntaxHighlighter>
             )}
             {safeShowEmptyState && !code && (
-              <div className="absolute inset-0 h-full w-full flex items-center justify-center text-gray-500 pointer-events-none">
+              <div className="absolute inset-0 h-full w-full flex items-center justify-center text-muted-foreground pointer-events-none">
                 <div className="text-center">
                   {emptyStateIcon}
                   <p>{emptyStateMessage}</p>

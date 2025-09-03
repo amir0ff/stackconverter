@@ -40,8 +40,8 @@ const StackSelection: React.FC<StackSelectionProps> = ({
         )}
       </div>
       
-      <div className="bg-white/10 backdrop-blur-sm rounded-full p-3">
-        <ArrowRight className="h-6 w-6 text-white" />
+      <div className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 backdrop-blur-sm rounded-full p-3 border border-gray-300 dark:border-gray-600">
+        <ArrowRight className="h-6 w-6 text-gray-600 dark:text-gray-400" />
       </div>
       
       <StackSelector

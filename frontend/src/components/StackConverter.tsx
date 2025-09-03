@@ -113,12 +113,12 @@ const StackConverter: React.FC = () => {
 
   return (
     <>
-      <Tooltip id="upload-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
-      <Tooltip id="reset-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
-      <Tooltip id="edit-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
-      <Tooltip id="copy-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
-      <Tooltip id="download-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !bg-gray-900 !text-white !px-3 !py-2" />
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
+      <Tooltip id="upload-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !px-3 !py-2 tooltip-light dark:tooltip-dark" />
+      <Tooltip id="reset-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !px-3 !py-2 tooltip-light dark:tooltip-dark" />
+      <Tooltip id="edit-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !px-3 !py-2 tooltip-light dark:tooltip-dark" />
+      <Tooltip id="copy-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !px-3 !py-2 tooltip-light dark:tooltip-dark" />
+      <Tooltip id="download-tooltip" place="top" className="!z-50 !text-sm !rounded-lg !px-3 !py-2 tooltip-light dark:tooltip-dark" />
+      <div className="min-h-screen bg-gradient-light dark:bg-gradient-dark p-4">
         <div className="max-w-7xl mx-auto">
           <Header />
           
