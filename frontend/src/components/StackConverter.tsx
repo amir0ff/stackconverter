@@ -89,9 +89,12 @@ const StackConverter: React.FC = () => {
       if (newSourceStack === conversionState.targetStack && conversionState.convertedCode) {
         updateSourceCode(conversionState.convertedCode);
       } else {
-        updateSourceCode(typeof exampleCode[newSourceStack] === 'string' 
-          ? exampleCode[newSourceStack] 
-          : '');
+        const exampleCodeValue = exampleCode[newSourceStack];
+        if (typeof exampleCodeValue === 'string') {
+          updateSourceCode(exampleCodeValue);
+        } else {
+          updateSourceCode('');
+        }
       }
     }
   };

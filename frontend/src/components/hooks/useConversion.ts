@@ -10,9 +10,12 @@ export const useConversion = (
   setCaptchaToken?: (token: string | null) => void
 ) => {
   // Ensure we have a valid initial code
-  const initialCode = typeof exampleCode.react === 'string' 
-    ? exampleCode.react 
-    : `import React, { useState } from 'react';
+  const getInitialCode = () => {
+    const reactCode = exampleCode.react;
+    if (typeof reactCode === 'string') {
+      return reactCode;
+    }
+    return `import React, { useState } from 'react';
 
 const Counter = ({ initialValue = 0 }) => {
   const [count, setCount] = useState(initialValue);
@@ -28,6 +31,9 @@ const Counter = ({ initialValue = 0 }) => {
 };
 
 export default Counter;`;
+  };
+
+  const initialCode = getInitialCode();
 
   const [conversionState, setConversionState] = useState<ConversionState>({
     sourceCode: initialCode,
@@ -158,13 +164,14 @@ export default Counter;`;
   };
 
   const resetCode = () => {
-    setConversionState(prev => ({
-      ...prev,
-      sourceCode: typeof exampleCode[prev.sourceStack] === 'string' 
-        ? exampleCode[prev.sourceStack] 
-        : '',
-      convertedCode: '',
-    }));
+    setConversionState(prev => {
+      const exampleCodeValue = exampleCode[prev.sourceStack];
+      return {
+        ...prev,
+        sourceCode: typeof exampleCodeValue === 'string' ? exampleCodeValue : '',
+        convertedCode: '',
+      };
+    });
     setFileUploadState({
       uploadedFile: null,
       isUploading: false,
