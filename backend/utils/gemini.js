@@ -1,9 +1,9 @@
 // backend/utils/gemini.js
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');6
 const axios = require('axios');
 
 function genAI() {
-  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY).getGenerativeModel({ model: 'gemini-2.5-pro' });
+  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY).getGenerativeModel({ model: 'gemini-2.5-flash' });
 }
 
 function buildPrompt(sourceCode, sourceStack, targetStack) {
