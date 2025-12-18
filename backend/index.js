@@ -21,6 +21,7 @@ const uploadRoute = require('./routes/upload');
 const batchConvertRoute = require('./routes/batchConvert');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
 app.use(corsMiddleware);
