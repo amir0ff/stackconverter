@@ -8,7 +8,7 @@ const genAIClient = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
  * Optimized for high-quality code generation using the latest Gemini 3 model.
  */
 function genAI() {
-    return genAIClient.getGenerativeModel({model: 'gemini-3-flash-preview'});
+    return genAIClient.getGenerativeModel({model: 'gemini-2.5-flash'});
 }
 
 /**

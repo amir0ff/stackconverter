@@ -11,7 +11,7 @@ AI-powered codebase converter. Instantly convert code between frameworks (e.g., 
 
 ## Features
 - 🔄 Convert code between major frameworks (React, Vue, Angular, Svelte, SolidJS, Preact)
-- 🧠 Powered by Google `gemini-3-flash-preview`
+- 🧠 Powered by Google `gemini-2.5-flash`
 - 🚀 Monorepo for easy development and deployment
 
 ## Deployment & VPS Configuration

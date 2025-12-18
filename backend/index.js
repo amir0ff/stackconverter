@@ -1,6 +1,14 @@
 // backend/index.js
+require('dotenv').config();
+
+if (!process.env.GEMINI_API_KEY) {
+    console.error('❌ CRITICAL ERROR: GEMINI_API_KEY is not defined in the environment.');
+    process.exit(1); // Stop the server if the key is missing
+} else {
+    console.log('✅ Environment variables loaded successfully.');
+}
+
 const express = require('express');
-const dotenv = require('dotenv');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
@@ -11,8 +19,6 @@ const detectStackRoute = require('./routes/detectStack');
 const convertRoute = require('./routes/convert');
 const uploadRoute = require('./routes/upload');
 const batchConvertRoute = require('./routes/batchConvert');
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
