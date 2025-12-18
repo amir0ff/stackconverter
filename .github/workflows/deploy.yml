@@ -1,4 +1,4 @@
-name: 🚀 Build & Deploy 
+name: 🚀 Build & Deploy
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
 
 jobs:
   deploy:
-    # Use self-hosted runner if available, fallback to GitHub-hosted otherwise
     runs-on: [self-hosted, linux, x64]
     environment:
       name: production
@@ -21,24 +20,14 @@ jobs:
         with:
           node-version: '18'
 
-      - name: 💾 Restore pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.local/share/pnpm/store/v3
-            node_modules
-            */node_modules
-          key: deps-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            deps-${{ runner.os }}-
-
-      - name: 📦 Install dependencies
+      - name: 📦 Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10
-          run_install: |
-            - recursive: true
-              args: [--frozen-lockfile, --prefer-offline]
+
+      - name: 📥 Install dependencies
+        # On self-hosted, this is lightning fast because the store is local
+        run: pnpm install --frozen-lockfile
 
       - name: 🧪 Run backend tests
         run: |
@@ -57,7 +46,8 @@ jobs:
           BACKEND_PATH="${{ secrets.BACKEND_PATH }}"
           echo "📤 Copying backend files to $BACKEND_PATH ..."
           mkdir -p "$BACKEND_PATH"
-          rsync -az --delete --exclude 'node_modules' --exclude '.git' --exclude '__tests__' --exclude 'coverage' --exclude 'lcov-report' backend/ "$BACKEND_PATH/"
+          rsync -az --delete --exclude 'node_modules' --exclude '.git' backend/ "$BACKEND_PATH/"
+          
           echo "🔑 Setting up environment variables..."
           cat > "$BACKEND_PATH/.env" << ENVEOF
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
@@ -66,15 +56,12 @@ jobs:
           NODE_ENV=production
           ENVEOF
           chmod 600 "$BACKEND_PATH/.env"
-          echo "📦 Installing backend dependencies..."
+          
+          echo "🚀 Starting backend with PM2..."
           cd "$BACKEND_PATH"
           pnpm install --prod
-          echo "🚀 Restarting backend with PM2..."
-          # Try to restart with new env; if it doesn't exist, start it fresh
           pm2 restart "stackconverter-backend" --update-env || pm2 start index.js --name "stackconverter-backend"
           pm2 save
-          echo "✅ Deployment completed successfully!"
-          echo "🔧 Backend: http://localhost:5000"
 
       - name: 🚀 Deploy frontend
         run: |
@@ -88,15 +75,11 @@ jobs:
           echo "🔍 Checking PM2 status and backend health..."
           pm2 status | grep stackconverter-backend
           curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || echo "❌ Backend not responding"
-          ls -la "${{ secrets.FRONTEND_PATH }}"
-          ls -la "${{ secrets.BACKEND_PATH }}"
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.me/stackconverter/"
           echo "✅ Backend: http://localhost:5000"
           echo "✅ PM2 managing backend process"
           echo "✅ Environment variables configured"
           echo ""
-          echo "📝 Next steps:"
-          echo "1. Test the application at https://amiroff.me/stackconverter/"
-          echo "2. Check PM2 logs: pm2 logs stackconverter-backend"
-          echo "3. Monitor with: pm2 monit"
+          echo "Check PM2 logs: pm2 logs stackconverter-backend"
+          echo "Monitor with: pm2 monit"
