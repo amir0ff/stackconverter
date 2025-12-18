@@ -3,7 +3,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');6
 const axios = require('axios');
 
 function genAI() {
-  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY).getGenerativeModel({ model: 'gemini-2.5-flash' });
+  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY).getGenerativeModel({ model: 'gemini-3-flash-preview' });
 }
 
 function buildPrompt(sourceCode, sourceStack, targetStack) {
