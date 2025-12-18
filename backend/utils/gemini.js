@@ -1,5 +1,5 @@
 // backend/utils/gemini.js
-const { GoogleGenerativeAI } = require('@google/generative-ai');6
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const axios = require('axios');
 
 function genAI() {
