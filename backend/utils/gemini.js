@@ -4,18 +4,14 @@ const axios = require('axios');
 
 const genAIClient = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-/**
- * Optimized for high-quality code generation using the latest Gemini 3 model.
- */
 function genAI() {
-    return genAIClient.getGenerativeModel({model: 'gemini-2.5-flash'});
+    // Gemini 3 Flash is now the "Smarter" default for coding/conversion
+    return genAIClient.getGenerativeModel({ model: 'gemini-3-flash-preview' });
 }
 
-/**
- * Optimized for speed and high rate-limits for simple classification tasks.
- */
 function genDetectionAI() {
-    return genAIClient.getGenerativeModel({model: 'gemini-2.5-flash-lite'});
+    // 2.5 Flash-Lite is excellent for ultra-fast detection
+    return genAIClient.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 }
 
 function buildPrompt(sourceCode, sourceStack, targetStack) {
