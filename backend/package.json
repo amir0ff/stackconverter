@@ -22,19 +22,19 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "archiver": "^7.0.1",
-    "axios": "^1.10.0",
+    "axios": "^1.13.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "dotenv": "^17.0.1",
-    "express": "^5.1.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "express-rate-limit": "^7.5.1",
-    "multer": "^2.0.1",
+    "multer": "^2.0.2",
     "unzipper": "^0.12.3"
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "supertest": "^6.3.3",
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.1.11",
+    "supertest": "^6.3.4"
   },
   "jest": {
     "testEnvironment": "node",
@@ -43,7 +43,11 @@
       "!node_modules/**",
       "!coverage/**"
     ],
-    "coverageReporters": ["text", "lcov", "html"],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
     "testPathIgnorePatterns": [
       "node_modules",
       "coverage",

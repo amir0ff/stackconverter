@@ -9,7 +9,7 @@ jest.mock('../../utils/gemini', () => ({
   buildDetectionPrompt: jest.fn().mockImplementation((sourceCode) => {
     return `Analyze this code: ${sourceCode}`;
   }),
-  genAI: jest.fn().mockReturnValue({
+  genDetectionAI: jest.fn().mockReturnValue({
     generateContent: jest.fn().mockResolvedValue({
       response: {
         text: () => 'react'
@@ -39,7 +39,7 @@ describe('Detect Stack Route', () => {
   });
 
   it('should detect React stack successfully and call required functions', async () => {
-    const { buildDetectionPrompt, genAI } = require('../../utils/gemini');
+    const { buildDetectionPrompt, genDetectionAI } = require('../../utils/gemini');
     
     const response = await request(app)
       .post('/detect-stack')
@@ -53,12 +53,12 @@ describe('Detect Stack Route', () => {
     
     // Verify actual function calls
     expect(buildDetectionPrompt).toHaveBeenCalledWith('import React, { useState } from "react"; const Component = () => <div>Hello</div>');
-    expect(genAI).toHaveBeenCalled();
+    expect(genDetectionAI).toHaveBeenCalled();
   });
 
   it('should detect Vue stack successfully', async () => {
-    const { genAI } = require('../../utils/gemini');
-    genAI.mockReturnValue({
+    const { genDetectionAI } = require('../../utils/gemini');
+    genDetectionAI.mockReturnValue({
       generateContent: jest.fn().mockResolvedValue({
         response: {
           text: () => 'vue'
@@ -96,8 +96,8 @@ describe('Detect Stack Route', () => {
   });
 
   it('should handle detection errors gracefully', async () => {
-    const { genAI } = require('../../utils/gemini');
-    genAI.mockReturnValue({
+    const { genDetectionAI } = require('../../utils/gemini');
+    genDetectionAI.mockReturnValue({
       generateContent: jest.fn().mockRejectedValue(new Error('Detection failed'))
     });
 
@@ -121,8 +121,8 @@ describe('Detect Stack Route', () => {
     ];
 
     for (const testCase of testCases) {
-      const { genAI } = require('../../utils/gemini');
-      genAI.mockReturnValue({
+      const { genDetectionAI } = require('../../utils/gemini');
+      genDetectionAI.mockReturnValue({
         generateContent: jest.fn().mockResolvedValue({
           response: {
             text: () => testCase.expected
