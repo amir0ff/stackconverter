@@ -63,9 +63,9 @@ jobs:
           cd "$BACKEND_PATH"
           pnpm install --prod
 
-          # Using global pm2 directly for reliability
-          pm2 restart "stackconverter-backend" --update-env || pm2 start index.js --name "stackconverter-backend"
-          pm2 save
+          # Use sudo -u ubuntu to ensure we don't deploy as root
+          sudo -u ubuntu pm2 restart "stackconverter-backend" --update-env || sudo -u ubuntu pm2 start index.js --name "stackconverter-backend"
+          sudo -u ubuntu pm2 save
 
       - name: 🚀 Deploy frontend
         run: |
@@ -77,8 +77,9 @@ jobs:
       - name: ✅ Run health check
         run: |
           echo "🔍 Checking PM2 status and backend health..."
-          pm2 status | grep stackconverter-backend
-          sleep 2
+          # Check the list specifically for the ubuntu user
+          sudo -u ubuntu pm2 status | grep stackconverter-backend
+          sleep 5
           curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || (echo "❌ Backend not responding" && exit 1)
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.org/stackconverter/"
