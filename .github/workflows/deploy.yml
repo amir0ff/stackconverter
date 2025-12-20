@@ -60,8 +60,17 @@ jobs:
           echo "🚀 Starting backend with PM2..."
           cd "$BACKEND_PATH"
           pnpm install --prod
-          pm2 restart "stackconverter-backend" --update-env || pm2 start index.js --name "stackconverter-backend"
-          pm2 save
+
+          # Check for PM2 and install if missing
+          if ! command -v pm2 &> /dev/null; then
+            echo "⚠️ PM2 not found. Installing globally..."
+            sudo npm install -g pm2
+          fi
+
+          # Use absolute path to ensure the shell finds it
+          PM2_BIN=$(which pm2)
+          $PM2_BIN restart "stackconverter-backend" --update-env || $PM2_BIN start index.js --name "stackconverter-backend"
+          $PM2_BIN save
 
       - name: 🚀 Deploy frontend
         run: |
@@ -73,7 +82,8 @@ jobs:
       - name: ✅ Run health check
         run: |
           echo "🔍 Checking PM2 status and backend health..."
-          pm2 status | grep stackconverter-backend
+          PM2_BIN=$(which pm2)
+          $PM2_BIN status | grep stackconverter-backend
           curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || echo "❌ Backend not responding"
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.me/stackconverter/"
@@ -81,5 +91,5 @@ jobs:
           echo "✅ PM2 managing backend process"
           echo "✅ Environment variables configured"
           echo ""
-          echo "Check PM2 logs: pm2 logs stackconverter-backend"
-          echo "Monitor with: pm2 monit"
+          echo "Check PM2 logs: $PM2_BIN logs stackconverter-backend"
+          echo "Monitor with: $PM2_BIN monit"
