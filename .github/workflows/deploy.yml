@@ -5,6 +5,10 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+concurrency:
+  group: production_deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: [self-hosted, linux, x64]
@@ -18,7 +22,7 @@ jobs:
       - name: 🟩 Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: 📦 Install pnpm
         run: npm install -g pnpm@latest-10
@@ -59,8 +63,9 @@ jobs:
           cd "$BACKEND_PATH"
           pnpm install --prod
 
-          npx pm2 restart "stackconverter-backend" --update-env || npx pm2 start index.js --name "stackconverter-backend"
-          npx pm2 save
+          # Using global pm2 directly for reliability
+          pm2 restart "stackconverter-backend" --update-env || pm2 start index.js --name "stackconverter-backend"
+          pm2 save
 
       - name: 🚀 Deploy frontend
         run: |
@@ -72,14 +77,14 @@ jobs:
       - name: ✅ Run health check
         run: |
           echo "🔍 Checking PM2 status and backend health..."
-          # Using npx here as well to maintain consistency
-          npx pm2 status | grep stackconverter-backend
-          curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || echo "❌ Backend not responding"
+          pm2 status | grep stackconverter-backend
+          sleep 2
+          curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || (echo "❌ Backend not responding" && exit 1)
           echo "🎉 Deployment Summary:"
-          echo "✅ Frontend: https://amiroff.me/stackconverter/"
+          echo "✅ Frontend: https://amiroff.org/stackconverter/"
           echo "✅ Backend: http://localhost:5000"
           echo "✅ PM2 managing backend process"
           echo "✅ Environment variables configured"
           echo ""
-          echo "Check PM2 logs: npx pm2 logs stackconverter-backend"
-          echo "Monitor with: npx pm2 monit"
+          echo "Check PM2 logs: pm2 logs stackconverter-backend"
+          echo "Monitor with: pm2 monit"
