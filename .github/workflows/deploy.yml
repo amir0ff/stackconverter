@@ -48,16 +48,19 @@ jobs:
           BACKEND_PATH="${{ secrets.BACKEND_PATH }}"
           echo "📤 Preparing backend at $BACKEND_PATH ..."
           
-          # 1. Force directory existence and fix parent ownership immediately
-          mkdir -p "$BACKEND_PATH"
-          chown -R ubuntu:ubuntu "$BACKEND_PATH"
+          # 1. Force directory existence and FIX PARENT ownership immediately
+          # This ensures 'ubuntu' has permission to create files inside this folder
+          sudo mkdir -p "$BACKEND_PATH"
+          sudo chown -R ubuntu:ubuntu "$BACKEND_PATH"
+          sudo chmod 755 "$BACKEND_PATH"
           
-          # 2. Sync files
-          rsync -az --delete --exclude 'node_modules' --exclude '.git' backend/ "$BACKEND_PATH/"
+          # 2. Sync files (using sudo to ensure we can overwrite anything)
+          sudo rsync -az --delete --exclude 'node_modules' --exclude '.git' backend/ "$BACKEND_PATH/"
+          sudo chown -R ubuntu:ubuntu "$BACKEND_PATH"
           
           echo "🔑 Setting up environment variables..."
-          # 3. Use 'tee' with sudo to write the file—this is more reliable than redirection
-          sudo -u ubuntu bash -c "cat << ENVEOF | tee '$BACKEND_PATH/.env' > /dev/null
+          # 3. Create the file using a method that definitely works with sudo
+          sudo -u ubuntu bash -c "cat << 'ENVEOF' > $BACKEND_PATH/.env
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           PORT=5000
