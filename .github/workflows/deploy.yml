@@ -46,9 +46,9 @@ jobs:
       - name: 🚀 Deploy backend
         run: |
           BACKEND_PATH="${{ secrets.BACKEND_PATH }}"
-          echo "📤 Copying backend files to $BACKEND_PATH ..."
+          echo "📤 Preparing backend at $BACKEND_PATH ..."
           
-          # 1. Ensure directory exists and is owned by ubuntu
+          # 1. Force directory existence and fix parent ownership immediately
           mkdir -p "$BACKEND_PATH"
           chown -R ubuntu:ubuntu "$BACKEND_PATH"
           
@@ -56,8 +56,8 @@ jobs:
           rsync -az --delete --exclude 'node_modules' --exclude '.git' backend/ "$BACKEND_PATH/"
           
           echo "🔑 Setting up environment variables..."
-          # 3. Create .env as the ubuntu user directly
-          sudo -u ubuntu bash -c "cat > '$BACKEND_PATH/.env' << ENVEOF
+          # 3. Use 'tee' with sudo to write the file—this is more reliable than redirection
+          sudo -u ubuntu bash -c "cat << ENVEOF | tee '$BACKEND_PATH/.env' > /dev/null
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           PORT=5000
@@ -69,7 +69,7 @@ jobs:
           echo "🚀 Starting backend with PM2..."
           cd "$BACKEND_PATH"
           
-          # 4. Run everything else as ubuntu
+          # 4. Stay in the ubuntu context for the rest
           sudo -u ubuntu pnpm install --prod
           sudo -u ubuntu pm2 restart "stackconverter-backend" --update-env || sudo -u ubuntu pm2 start index.js --name "stackconverter-backend"
           sudo -u ubuntu pm2 save
