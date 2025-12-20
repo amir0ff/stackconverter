@@ -46,39 +46,29 @@ jobs:
       - name: 🚀 Deploy backend
         run: |
           BACKEND_PATH="${{ secrets.BACKEND_PATH }}"
-          echo "📤 Preparing backend at $BACKEND_PATH ..."
           
-          # 1. Fix directory ownership as root first
+          # 1. Sync files and ensure directory exists
           sudo mkdir -p "$BACKEND_PATH"
-          sudo chown -R ubuntu:ubuntu "$BACKEND_PATH"
-          sudo chmod 755 "$BACKEND_PATH"
-          
-          # 2. Sync files
           sudo rsync -az --delete --exclude 'node_modules' --exclude '.git' backend/ "$BACKEND_PATH/"
+          
+          # 2. Fix permissions & create the uploads folder Multer needs
+          sudo mkdir -p "$BACKEND_PATH/uploads"
           sudo chown -R ubuntu:ubuntu "$BACKEND_PATH"
+          sudo chmod -R 755 "$BACKEND_PATH"
           
-          # 3. Use a single login shell to create env and start app
-          # This is the most reliable way to maintain the 'ubuntu' user context
-          sudo -u ubuntu bash -l << 'EOF'
-          cd "${{ secrets.BACKEND_PATH }}"
-          
-          echo "🔑 Writing environment variables..."
-          cat > .env << ENVEOF
+          echo "🔑 Setting up .env..."
+          sudo -u ubuntu tee "$BACKEND_PATH/.env" << ENVEOF > /dev/null
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           PORT=5000
           NODE_ENV=production
           ENVEOF
-          chmod 600 .env
           
-          echo "📦 Installing production dependencies..."
-          export CI=true
-          pnpm install --prod --no-frozen-lockfile
-          
-          echo "🚀 Starting process..."
-          pm2 restart "stackconverter-backend" --update-env || pm2 start index.js --name "stackconverter-backend"
-          pm2 save
-          EOF
+          # 3. Production install and restart
+          cd "$BACKEND_PATH"
+          sudo -u ubuntu -E pnpm install --prod
+          sudo -u ubuntu -E pm2 restart "stackconverter-backend" --update-env || sudo -u ubuntu -E pm2 start index.js --name "stackconverter-backend"
+          sudo -u ubuntu -E pm2 save
 
       - name: 🚀 Deploy frontend
         run: |
