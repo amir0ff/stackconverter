@@ -48,7 +48,7 @@ jobs:
           BACKEND_PATH="${{ secrets.BACKEND_PATH }}"
           echo "📤 Preparing backend at $BACKEND_PATH ..."
           
-          # 1. Ensure directory exists and fix ownership
+          # 1. Fix directory ownership as root first
           sudo mkdir -p "$BACKEND_PATH"
           sudo chown -R ubuntu:ubuntu "$BACKEND_PATH"
           sudo chmod 755 "$BACKEND_PATH"
@@ -57,25 +57,28 @@ jobs:
           sudo rsync -az --delete --exclude 'node_modules' --exclude '.git' backend/ "$BACKEND_PATH/"
           sudo chown -R ubuntu:ubuntu "$BACKEND_PATH"
           
-          echo "🔑 Setting up environment variables..."
-          # 3. Create the .env as ubuntu
-          sudo -u ubuntu bash -c "cat << 'ENVEOF' > $BACKEND_PATH/.env
+          # 3. Use a single login shell to create env and start app
+          # This is the most reliable way to maintain the 'ubuntu' user context
+          sudo -u ubuntu bash -l << 'EOF'
+          cd "${{ secrets.BACKEND_PATH }}"
+          
+          echo "🔑 Writing environment variables..."
+          cat > .env << ENVEOF
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           PORT=5000
           NODE_ENV=production
-          ENVEOF"
+          ENVEOF
+          chmod 600 .env
           
-          sudo -u ubuntu chmod 600 "$BACKEND_PATH/.env"
+          echo "📦 Installing production dependencies..."
+          export CI=true
+          pnpm install --prod --no-frozen-lockfile
           
-          echo "🚀 Starting backend with PM2..."
-          cd "$BACKEND_PATH"
-          
-          # 4. Added CI=true to bypass the TTY abort error
-          sudo -u ubuntu CI=true pnpm install --prod
-          
-          sudo -u ubuntu pm2 restart "stackconverter-backend" --update-env || sudo -u ubuntu pm2 start index.js --name "stackconverter-backend"
-          sudo -u ubuntu pm2 save
+          echo "🚀 Starting process..."
+          pm2 restart "stackconverter-backend" --update-env || pm2 start index.js --name "stackconverter-backend"
+          pm2 save
+          EOF
 
       - name: 🚀 Deploy frontend
         run: |
