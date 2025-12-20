@@ -57,6 +57,11 @@ jobs:
           PORT=5000
           NODE_ENV=production
           ENVEOF
+          
+          # Fix ownership so the ubuntu user can read it
+          chown ubuntu:ubuntu "$BACKEND_PATH/.env"
+          chmod 600 "$BACKEND_PATH/.env"
+          
           chmod 600 "$BACKEND_PATH/.env"
           
           echo "🚀 Starting backend with PM2..."
