@@ -25,7 +25,9 @@ jobs:
           node-version: '20'
 
       - name: 📦 Install pnpm
-        run: npm install -g pnpm@latest-10
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - name: 📥 Install dependencies
         # On self-hosted, this is lightning fast because the store is local
@@ -46,49 +48,41 @@ jobs:
       - name: 🚀 Deploy backend
         run: |
           BACKEND_PATH="${{ secrets.BACKEND_PATH }}"
+          echo "📤 Copying backend files to $BACKEND_PATH ..."
+          mkdir -p "$BACKEND_PATH"
+          rsync -az --delete --exclude 'node_modules' --exclude '.git' --exclude '__tests__' --exclude 'coverage' --exclude 'lcov-report' backend/ "$BACKEND_PATH/"
           
-          # 1. Sync files and ensure directory exists
-          sudo mkdir -p "$BACKEND_PATH"
-          sudo rsync -az --delete --exclude 'node_modules' --exclude '.git' backend/ "$BACKEND_PATH/"
-          
-          # 2. Fix permissions & create the uploads folder Multer needs
-          sudo mkdir -p "$BACKEND_PATH/uploads"
-          sudo chown -R ubuntu:ubuntu "$BACKEND_PATH"
-          sudo chmod -R 755 "$BACKEND_PATH"
-          
-          echo "🔑 Setting up .env..."
-          sudo -u ubuntu tee "$BACKEND_PATH/.env" << ENVEOF > /dev/null
+          echo "🔑 Setting up environment variables..."
+          cat > "$BACKEND_PATH/.env" << ENVEOF
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
           TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           PORT=5000
           NODE_ENV=production
           ENVEOF
+          chmod 600 "$BACKEND_PATH/.env"
           
-          # 3. Production install and restart
+          echo "🚀 Starting backend with PM2..."
           cd "$BACKEND_PATH"
-          sudo -u ubuntu -E pnpm install --prod
-          sudo -u ubuntu -E pm2 restart "stackconverter-backend" --update-env || sudo -u ubuntu -E pm2 start index.js --name "stackconverter-backend"
-          sudo -u ubuntu -E pm2 save
-
+          pnpm install --prod
+          pm2 restart "stackconverter-backend" --update-env || pm2 start index.js --name "stackconverter-backend"
+          pm2 save
       - name: 🚀 Deploy frontend
         run: |
           FRONTEND_PATH="${{ secrets.FRONTEND_PATH }}"
           echo "📤 Copying frontend build to $FRONTEND_PATH ..."
           mkdir -p "$FRONTEND_PATH"
           rsync -az --delete frontend/dist/ "$FRONTEND_PATH/"
-
       - name: ✅ Run health check
         run: |
           echo "🔍 Checking PM2 status and backend health..."
-          # Check the list specifically for the ubuntu user
-          sudo -u ubuntu pm2 status | grep stackconverter-backend
-          sleep 5
-          curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || (echo "❌ Backend not responding" && exit 1)
+          pm2 status | grep stackconverter-backend
+          curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || (echo "❌ Backend not responding")
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.org/stackconverter/"
           echo "✅ Backend: http://localhost:5000"
           echo "✅ PM2 managing backend process"
           echo "✅ Environment variables configured"
           echo ""
-          echo "Check PM2 logs: pm2 logs stackconverter-backend"
-          echo "Monitor with: pm2 monit"
+          echo "📝 Next steps:"
+          echo "1. Check PM2 logs: pm2 logs stackconverter-backend"
+          echo "2. Monitor with: pm2 monit"
