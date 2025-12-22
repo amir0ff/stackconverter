@@ -93,7 +93,7 @@ jobs:
             STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:5000/ || echo "000")
           
             if [ "$STATUS" -eq 200 ]; then
-              echo "✅ Backend healthy (Status 200) after $i seconds!"
+              echo "✅ Backend healthy (Status 200 OK) after $i seconds!"
               SUCCESS=true
               break
             fi
