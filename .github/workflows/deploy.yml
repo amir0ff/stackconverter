@@ -63,8 +63,10 @@ jobs:
           
           echo "🚀 Starting backend with PM2..."
           cd "$BACKEND_PATH"
-          pnpm install --prod
-          pm2 restart "stackconverter-backend" --update-env || pm2 start index.js --name "stackconverter-backend"
+          rm -rf node_modules
+          pnpm install --prod --no-frozen-lockfile
+          pm2 delete "stackconverter-backend" || true
+          pm2 start index.js --name "stackconverter-backend"
           pm2 save
       - name: 🚀 Deploy frontend
         run: |
