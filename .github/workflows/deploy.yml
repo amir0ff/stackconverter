@@ -30,8 +30,8 @@ jobs:
           version: 10
 
       - name: 📥 Install dependencies
-        # On self-hosted, this is lightning fast because the store is local
-        run: pnpm install --frozen-lockfile
+        # Added prefer-offline to ensure we use the local store first
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: 🧪 Run backend tests
         run: |
@@ -66,7 +66,7 @@ jobs:
           
           # Clean node_modules to ensure no corrupted binaries
           rm -rf node_modules
-          pnpm install --prod --no-frozen-lockfile
+          pnpm install --prod --no-frozen-lockfile --prefer-offline
           
           # Hide 'not found' error if it's a first-time deploy
           pm2 delete "stackconverter-backend" > /dev/null 2>&1 || true
