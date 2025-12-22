@@ -84,22 +84,26 @@ jobs:
 
       - name: ✅ Run health check
         run: |
-          echo "🔍 Polling backend health (waiting for port 5000)..."
+          echo "🔍 Polling backend health for 200 OK status..."
           
-          # Try to connect every 1s, up to 15 times to be safe
+          # Try to connect every 1s, up to 15 times
           SUCCESS=false
           for i in {1..15}; do
-            if curl -s http://localhost:5000/ > /dev/null; then
-              echo "✅ Backend healthy after $i seconds!"
+            # Specifically capture the HTTP status code
+            STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:5000/ || echo "000")
+          
+            if [ "$STATUS" -eq 200 ]; then
+              echo "✅ Backend healthy (Status 200) after $i seconds!"
               SUCCESS=true
               break
             fi
-            echo "⏳ Attempt $i/15: App not ready, retrying..."
+          
+            echo "⏳ Attempt $i/15: Status $STATUS, app not ready yet..."
             sleep 1
           done
 
           if [ "$SUCCESS" = false ]; then
-            echo "❌ Backend failed to respond within 15 seconds."
+            echo "❌ Backend failed to return 200 OK within 15 seconds."
             echo "📊 Last 20 lines of PM2 logs:"
             pm2 logs "stackconverter-backend" --lines 20 --nostream
             exit 1
@@ -107,7 +111,7 @@ jobs:
 
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.org/stackconverter/"
-          echo "✅ Backend: http://localhost:5000"
+          echo "✅ Backend: http://localhost:5000 (Internal)"
           echo "✅ PM2 process: online"
           echo ""
           echo "📝 Next steps:"
