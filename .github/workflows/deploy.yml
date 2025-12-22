@@ -63,22 +63,38 @@ jobs:
           
           echo "🚀 Starting backend with PM2..."
           cd "$BACKEND_PATH"
+
           rm -rf node_modules
           pnpm install --prod --no-frozen-lockfile
-          pm2 delete "stackconverter-backend" || true
+          pm2 delete "stackconverter-backend" > /dev/null 2>&1 || true
+          # Start fresh to ensure new environment variables are active
           pm2 start index.js --name "stackconverter-backend"
           pm2 save
+
       - name: 🚀 Deploy frontend
         run: |
           FRONTEND_PATH="${{ secrets.FRONTEND_PATH }}"
           echo "📤 Copying frontend build to $FRONTEND_PATH ..."
           mkdir -p "$FRONTEND_PATH"
           rsync -az --delete frontend/dist/ "$FRONTEND_PATH/"
+
       - name: ✅ Run health check
         run: |
+          echo "🔍 Waiting for backend to initialize (preventing 0s uptime failure)..."
+          # Wait 5 seconds to ensure the app is listening before testing
+          sleep 5
+          
           echo "🔍 Checking PM2 status and backend health..."
           pm2 status | grep stackconverter-backend
-          curl -s http://localhost:5000/ > /dev/null && echo "✅ Backend healthy" || (echo "❌ Backend not responding")
+          
+          # Enhanced health check that properly reports failure to GitHub
+          if curl -s http://localhost:5000/ > /dev/null; then
+            echo "✅ Backend healthy"
+          else
+            echo "❌ Backend not responding on port 5000"
+            exit 1
+          fi
+
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.org/stackconverter/"
           echo "✅ Backend: http://localhost:5000"
