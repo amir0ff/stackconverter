@@ -63,10 +63,15 @@ jobs:
           
           echo "🚀 Starting backend with PM2..."
           cd "$BACKEND_PATH"
+          
+          # Clean node_modules to ensure no corrupted binaries
           rm -rf node_modules
           pnpm install --prod --no-frozen-lockfile
+          
+          # Hide 'not found' error if it's a first-time deploy
           pm2 delete "stackconverter-backend" > /dev/null 2>&1 || true
-          # Start fresh to ensure new environment variables are active
+          
+          # Start the process fresh
           pm2 start index.js --name "stackconverter-backend"
           pm2 save
 
@@ -79,25 +84,31 @@ jobs:
 
       - name: ✅ Run health check
         run: |
-          echo "🔍 Polling backend health..."
-          # Attempt to connect every 1s, up to 10 times
-          for i in {1..10}; do
+          echo "🔍 Polling backend health (waiting for port 5000)..."
+          
+          # Try to connect every 1s, up to 15 times to be safe
+          SUCCESS=false
+          for i in {1..15}; do
             if curl -s http://localhost:5000/ > /dev/null; then
               echo "✅ Backend healthy after $i seconds!"
-              exit 0
+              SUCCESS=true
+              break
             fi
-            echo "⏳ Wait $i/10: App not ready yet..."
+            echo "⏳ Attempt $i/15: App not ready, retrying..."
             sleep 1
           done
-          echo "❌ Backend failed to start within 10 seconds"
-          pm2 logs stackconverter-backend --lines 20
-          exit 1
+
+          if [ "$SUCCESS" = false ]; then
+            echo "❌ Backend failed to respond within 15 seconds."
+            echo "📊 Last 20 lines of PM2 logs:"
+            pm2 logs "stackconverter-backend" --lines 20 --nostream
+            exit 1
+          fi
 
           echo "🎉 Deployment Summary:"
           echo "✅ Frontend: https://amiroff.org/stackconverter/"
           echo "✅ Backend: http://localhost:5000"
-          echo "✅ PM2 managing backend process"
-          echo "✅ Environment variables configured"
+          echo "✅ PM2 process: online"
           echo ""
           echo "📝 Next steps:"
           echo "1. Check PM2 logs: pm2 logs stackconverter-backend"
